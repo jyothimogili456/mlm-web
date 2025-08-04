@@ -3,10 +3,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import './Login.css';
 import camelqLogo from '../assets/camelq logo without background (1).png';
 import { userApi, apiUtils } from '../api';
+import { useUser } from '../context/UserContext';
 
 const AuthCard: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { refreshUser } = useUser();
   
   // Register form state
   const [register, setRegister] = useState({ 
@@ -30,38 +32,177 @@ const AuthCard: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(0); // 0 = registration, 1 = products, 2 = refer, 3 = milestones
 
+  // Password strength checker
+  const getPasswordStrength = (password: string) => {
+    if (!password) return { strength: 0, message: '', color: '#e5e7eb' };
+    
+    let score = 0;
+    const checks = {
+      length: password.length >= 8,
+      lowercase: /[a-z]/.test(password),
+      uppercase: /[A-Z]/.test(password),
+      number: /\d/.test(password),
+      special: /[@$!%*?&]/.test(password)
+    };
+    
+    score += checks.length ? 1 : 0;
+    score += checks.lowercase ? 1 : 0;
+    score += checks.uppercase ? 1 : 0;
+    score += checks.number ? 1 : 0;
+    score += checks.special ? 1 : 0;
+    
+    if (score <= 1) return { strength: score, message: 'Very Weak', color: '#ef4444' };
+    if (score <= 2) return { strength: score, message: 'Weak', color: '#f97316' };
+    if (score <= 3) return { strength: score, message: 'Fair', color: '#eab308' };
+    if (score <= 4) return { strength: score, message: 'Good', color: '#22c55e' };
+    return { strength: score, message: 'Strong', color: '#16a34a' };
+  };
+
   // Validation
   const validateRegister = () => {
     const errs: any = {};
-    if (!register.name) errs.name = 'Name required';
-    if (!register.email) errs.email = 'Email required';
-    if (!register.password) errs.password = 'Password required';
-    if (!register.mobileNumber) errs.mobileNumber = 'Mobile number required';
-    if (register.password && register.password.length < 6) errs.password = 'Password must be at least 6 characters';
-    if (register.email && !/\S+@\S+\.\S+/.test(register.email)) errs.email = 'Please enter a valid email';
+    
+    // Name validation
+    if (!register.name.trim()) {
+      errs.name = 'Name is required';
+    } else if (register.name.trim().length < 2) {
+      errs.name = 'Name must be at least 2 characters long';
+    } else if (register.name.trim().length > 50) {
+      errs.name = 'Name must be less than 50 characters';
+    } else if (!/^[a-zA-Z\s]+$/.test(register.name.trim())) {
+      errs.name = 'Name can only contain letters and spaces';
+    }
+    
+    // Email validation
+    if (!register.email.trim()) {
+      errs.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(register.email.trim())) {
+      errs.email = 'Please enter a valid email address';
+    } else if (register.email.trim().length > 100) {
+      errs.email = 'Email must be less than 100 characters';
+    }
+    
+    // Password validation
+    if (!register.password) {
+      errs.password = 'Password is required';
+    } else if (register.password.length < 8) {
+      errs.password = 'Password must be at least 8 characters long';
+    } else if (register.password.length > 50) {
+      errs.password = 'Password must be less than 50 characters';
+    } else if (!/(?=.*[a-z])/.test(register.password)) {
+      errs.password = 'Password must contain at least one lowercase letter';
+    } else if (!/(?=.*[A-Z])/.test(register.password)) {
+      errs.password = 'Password must contain at least one uppercase letter';
+    } else if (!/(?=.*\d)/.test(register.password)) {
+      errs.password = 'Password must contain at least one number';
+    } else if (!/(?=.*[@$!%*?&])/.test(register.password)) {
+      errs.password = 'Password must contain at least one special character (@$!%*?&)';
+    }
+    
+    // Mobile number validation
+    if (!register.mobileNumber.trim()) {
+      errs.mobileNumber = 'Mobile number is required';
+    } else if (!/^[6-9]\d{9}$/.test(register.mobileNumber.trim())) {
+      errs.mobileNumber = 'Please enter a valid 10-digit mobile number';
+    }
+    
+    // Gender validation (optional but if provided, must be valid)
+    if (register.gender && !['male', 'female', 'other'].includes(register.gender.toLowerCase())) {
+      errs.gender = 'Please select a valid gender';
+    }
+    
+    // Address validation (optional but if provided, must be valid)
+    if (register.address && register.address.trim().length < 10) {
+      errs.address = 'Address must be at least 10 characters long';
+    } else if (register.address && register.address.trim().length > 200) {
+      errs.address = 'Address must be less than 200 characters';
+    }
+    
+    // Referral code validation (optional but if provided, must be valid)
+    if (register.referral && register.referral.trim().length < 3) {
+      errs.referral = 'Referral code must be at least 3 characters long';
+    } else if (register.referral && register.referral.trim().length > 20) {
+      errs.referral = 'Referral code must be less than 20 characters';
+    } else if (register.referral && !/^[a-zA-Z0-9]+$/.test(register.referral.trim())) {
+      errs.referral = 'Referral code can only contain letters and numbers';
+    }
+    
     setRegisterErrors(errs);
     return Object.keys(errs).length === 0;
   };
   
   const validateLogin = () => {
     const errs: any = {};
-    if (!login.email) errs.email = 'Email required';
-    if (!login.password) errs.password = 'Password required';
+    
+    // Email validation
+    if (!login.email.trim()) {
+      errs.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(login.email.trim())) {
+      errs.email = 'Please enter a valid email address';
+    } else if (login.email.trim().length > 100) {
+      errs.email = 'Email must be less than 100 characters';
+    }
+    
+    // Password validation
+    if (!login.password) {
+      errs.password = 'Password is required';
+    } else if (login.password.length < 1) {
+      errs.password = 'Password cannot be empty';
+    } else if (login.password.length > 100) {
+      errs.password = 'Password must be less than 100 characters';
+    }
+    
     setLoginErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
   // Handlers
   const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRegister({ ...register, [e.target.name]: e.target.value });
-    setRegisterErrors({ ...registerErrors, [e.target.name]: undefined });
+    const { name, value } = e.target;
+    setRegister({ ...register, [name]: value });
+    setRegisterErrors({ ...registerErrors, [name]: undefined });
     setRegisterServerError(null);
+    
+    // Real-time validation for specific fields
+    if (name === 'email' && value.trim()) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
+        setRegisterErrors((prev: any) => ({ ...prev, email: 'Please enter a valid email address' }));
+      }
+    }
+    
+    if (name === 'mobileNumber' && value.trim()) {
+      if (!/^[6-9]\d{9}$/.test(value.trim())) {
+        setRegisterErrors((prev: any) => ({ ...prev, mobileNumber: 'Please enter a valid 10-digit mobile number' }));
+      }
+    }
+    
+    if (name === 'password' && value) {
+      if (value.length < 8) {
+        setRegisterErrors((prev: any) => ({ ...prev, password: 'Password must be at least 8 characters long' }));
+      } else if (!/(?=.*[a-z])/.test(value)) {
+        setRegisterErrors((prev: any) => ({ ...prev, password: 'Password must contain at least one lowercase letter' }));
+      } else if (!/(?=.*[A-Z])/.test(value)) {
+        setRegisterErrors((prev: any) => ({ ...prev, password: 'Password must contain at least one uppercase letter' }));
+      } else if (!/(?=.*\d)/.test(value)) {
+        setRegisterErrors((prev: any) => ({ ...prev, password: 'Password must contain at least one number' }));
+      } else if (!/(?=.*[@$!%*?&])/.test(value)) {
+        setRegisterErrors((prev: any) => ({ ...prev, password: 'Password must contain at least one special character (@$!%*?&)' }));
+      }
+    }
   };
   
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLogin({ ...login, [e.target.name]: e.target.value });
-    setLoginErrors({ ...loginErrors, [e.target.name]: undefined });
+    const { name, value } = e.target;
+    setLogin({ ...login, [name]: value });
+    setLoginErrors({ ...loginErrors, [name]: undefined });
     setLoginServerError(null);
+    
+    // Real-time validation for email
+    if (name === 'email' && value.trim()) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
+        setLoginErrors((prev: any) => ({ ...prev, email: 'Please enter a valid email address' }));
+      }
+    }
   };
   
   const handleRegisterSubmit = async (e: React.FormEvent) => {
@@ -113,8 +254,13 @@ const AuthCard: React.FC = () => {
         apiUtils.setToken(response.data.token);
         apiUtils.setUserData(response.data);
         
-        // Redirect to dashboard or home
-        navigate('/dashboard');
+        // Refresh user context
+        refreshUser();
+
+        // Small delay to ensure context is updated before navigation
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 100);
       } catch (error: any) {
         setLoginServerError(error.message || 'Login failed. Please check your credentials.');
       } finally {

@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { Header } from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
@@ -22,7 +22,7 @@ import MainLayout from "./layouts/MainLayout";
 import AuthLayout from "./layouts/AuthLayout";
 import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext";
-import { UserProvider } from "./context/UserContext";
+import { UserProvider, useUser } from "./context/UserContext";
 import "./App.css";
 import CareersPage from "./pages/CareersPage";
 import BranchesPage from "./pages/BranchesPage";
@@ -31,8 +31,54 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import ShippingPolicyPage from "./pages/ShippingPolicyPage";
 import TermsPage from "./pages/TermsPage";
 
+// Protected Route Component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useUser();
+
+  if (loading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '1.1rem',
+        color: '#6b7280'
+      }}>
+        Loading...
+      </div>
+    );
+  }
+
+  // Check if user is authenticated by looking at localStorage as well
+  const userToken = localStorage.getItem('userToken');
+  const userData = localStorage.getItem('userData');
+
+  if (!user && (!userToken || !userData)) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // If we have token and data but user context is not loaded, wait a bit
+  if (!user && (userToken && userData)) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '1.1rem',
+        color: '#6b7280'
+      }}>
+        Loading user data...
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+};
+
 function App() {
-  const location = useLocation(); // <-- use useLocation() instead of window.location
+  const location = useLocation();
   const isAuthPage = location.pathname === "/login" || location.pathname === "/register" || location.pathname === "/reset-password";
   return (
     <UserProvider>
@@ -49,10 +95,26 @@ function App() {
             <Route path="/wishlist" element={<MainLayout><Wishlist /></MainLayout>} />
             <Route path="/checkout" element={<MainLayout><Checkout /></MainLayout>} />
             <Route path="/thank-you" element={<MainLayout><ThankYou /></MainLayout>} />
-            <Route path="/dashboard" element={<MainLayout><Dashboard /></MainLayout>} />
-            <Route path="/rewards" element={<MainLayout><Rewards /></MainLayout>} />
-            <Route path="/direct-referrals" element={<MainLayout><DirectReferrals /></MainLayout>} />
-            <Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <MainLayout><Dashboard /></MainLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/rewards" element={
+              <ProtectedRoute>
+                <MainLayout><Rewards /></MainLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/direct-referrals" element={
+              <ProtectedRoute>
+                <MainLayout><DirectReferrals /></MainLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <MainLayout><Profile /></MainLayout>
+              </ProtectedRoute>
+            } />
             <Route path="/faqs" element={<MainLayout><FaqPage /></MainLayout>} />
             <Route path="/contact" element={<MainLayout><ContactPage /></MainLayout>} />
             <Route path="/about" element={<MainLayout><AboutPage /></MainLayout>} />
