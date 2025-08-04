@@ -23,6 +23,7 @@ import AuthLayout from "./layouts/AuthLayout";
 import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext";
 import { UserProvider, useUser } from "./context/UserContext";
+import ScrollToTop from "./components/ScrollToTop";
 import "./App.css";
 import CareersPage from "./pages/CareersPage";
 import BranchesPage from "./pages/BranchesPage";
@@ -84,6 +85,8 @@ function App() {
     <UserProvider>
       <CartProvider>
         <WishlistProvider>
+          {/* Scroll to top on route change */}
+          <ScrollToTop />
           {/* Router is now outside, so useLocation works */}
           {!isAuthPage && <Header />}
           <Routes>

@@ -168,8 +168,8 @@ export const userApi = {
 // Product API functions
 export const productApi = {
   // Get all products
-  getAllProducts: async (token?: string): Promise<ApiResponse<any[]>> => {
-    return apiGet<ApiResponse<any[]>>('/product/all', token);
+  getAllProducts: async (): Promise<ApiResponse<any[]>> => {
+    return apiGet<ApiResponse<any[]>>('/product/all');
   },
 
   // Get product by ID

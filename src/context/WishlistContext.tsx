@@ -210,12 +210,8 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     return state.items.some(item => item.productId === productId);
   };
 
-  // Load wishlist on mount if user is logged in
-  useEffect(() => {
-    if (apiUtils.isLoggedIn()) {
-      loadWishlist();
-    }
-  }, []);
+  // Don't automatically load wishlist on mount - only load when explicitly requested
+  // This prevents 401 errors when browsing products without being logged in
 
   return (
     <WishlistContext.Provider value={{ 

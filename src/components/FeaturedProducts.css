@@ -149,11 +149,18 @@
   letter-spacing: 0.01em;
 }
 
-.product-code-link {
+.product-code-text {
   color: #2563eb;
-  text-decoration: underline;
   font-weight: 700;
-  cursor: pointer;
+}
+
+.product-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
 }
 
 .view-details-btn {

@@ -328,12 +328,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Load cart on mount if user is logged in
-  useEffect(() => {
-    if (apiUtils.isLoggedIn()) {
-      loadCart();
-    }
-  }, []);
+  // Don't automatically load cart on mount - only load when explicitly requested
+  // This prevents 401 errors when browsing products without being logged in
 
   return (
     <CartContext.Provider value={{ 

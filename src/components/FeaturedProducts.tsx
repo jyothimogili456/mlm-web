@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { Link } from 'react-router-dom';
 import './FeaturedProducts.css';
 
 const products: any[] = [
@@ -79,15 +80,19 @@ const FeaturedProducts = () => {
         <div className="carousel-track" ref={carouselRef}>
           {products.map(product => (
             <div className="product-card" key={product.id}>
-              <div className="product-image-wrapper">
-                <img src={product.image} alt={product.name} className="product-image" />
-              </div>
-              <div className="product-category">{product.category}</div>
-              <div className="product-name">{product.name}</div>
-              <div className="product-code">
-                Item Code : <a href="#" className="product-code-link">{product.code}</a>
-              </div>
-              <button className="view-details-btn">View Details</button>
+              <Link to={`/products/${product.id}`} className="product-card-link">
+                <div className="product-image-wrapper">
+                  <img src={product.image} alt={product.name} className="product-image" />
+                </div>
+                <div className="product-category">{product.category}</div>
+                <div className="product-name">{product.name}</div>
+                <div className="product-code">
+                  Item Code : <span className="product-code-text">{product.code}</span>
+                </div>
+                <div className="view-details-btn">
+                  View Details
+                </div>
+              </Link>
             </div>
           ))}
         </div>

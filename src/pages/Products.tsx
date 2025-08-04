@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { apiUtils, productApi } from '../api';
 import { ShoppingCart, Heart, Eye, Loader } from 'lucide-react';
+import PopupModal from '../components/PopupModal';
 import './Products.css';
 
 const mockCategories = ['All', 'Health', 'Wellness', 'Supplements', 'Electronics'];
@@ -33,6 +34,17 @@ export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [popup, setPopup] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: 'success' | 'error' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info'
+  });
   
   const { addToCart } = useCart();
   const { addToWishlist, isInWishlist } = useWishlist();
@@ -50,12 +62,38 @@ export default function Products() {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const token = apiUtils.getToken();
-        const result = await productApi.getAllProducts(token || undefined);
+        console.log('Fetching products...'); // Debug log
+        
+        // Fetch products using the API function
+        const result = await productApi.getAllProducts();
         console.log('API Response:', result); // Debug log
-        setProducts(result.data || []);
+        
+        // Map the API response to match the expected Product interface
+        const mappedProducts = (result.data || []).map((product: any) => ({
+          id: product.id,
+          name: product.productName || product.name,
+          image: product.image || product.productImage || 'https://via.placeholder.com/300x300?text=Product',
+          category: product.category || 'General',
+          itemCode: product.itemCode || product.productCode || product.id.toString(),
+          mrp: product.mrp || product.productMrp || product.productPrice * 1.2, // 20% markup as MRP
+          price: product.productPrice || product.price,
+          rating: product.rating || 4.0,
+          description: product.description || product.productDescription || 'Product description coming soon...',
+          productName: product.productName || product.name,
+          productPrice: product.productPrice || product.price,
+          productCount: product.productCount || 0,
+          productStatus: product.productStatus || 'active',
+          productCode: product.productCode || product.id
+        }));
+        
+        console.log('Mapped Products:', mappedProducts);
+        setProducts(mappedProducts);
       } catch (error) {
         console.error('Error fetching products:', error);
+        console.error('Error details:', {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined
+        });
         setError('Network error while fetching products');
       } finally {
         setLoading(false);
@@ -81,12 +119,21 @@ export default function Products() {
     setRating(0);
   };
 
+  const closePopup = () => {
+    setPopup(prev => ({ ...prev, isOpen: false }));
+  };
+
   const handleAddToCart = async (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
     e.stopPropagation();
     
     if (!apiUtils.isLoggedIn()) {
-      alert('Please login to add items to cart');
+      setPopup({
+        isOpen: true,
+        title: 'Login Required',
+        message: 'Please login to add items to your cart.',
+        type: 'warning'
+      });
       return;
     }
 
@@ -95,9 +142,21 @@ export default function Products() {
     try {
       await addToCart(product.id, 1);
       setLoadingStates(prev => ({ ...prev, [product.id]: '' }));
+      setPopup({
+        isOpen: true,
+        title: 'Success!',
+        message: `${product.name} has been added to your cart.`,
+        type: 'success'
+      });
     } catch (error) {
       console.error('Failed to add to cart:', error);
       setLoadingStates(prev => ({ ...prev, [product.id]: '' }));
+      setPopup({
+        isOpen: true,
+        title: 'Error',
+        message: 'Failed to add item to cart. Please try again.',
+        type: 'error'
+      });
     }
   };
 
@@ -106,7 +165,12 @@ export default function Products() {
     e.stopPropagation();
     
     if (!apiUtils.isLoggedIn()) {
-      alert('Please login to add items to wishlist');
+      setPopup({
+        isOpen: true,
+        title: 'Login Required',
+        message: 'Please login to add items to your wishlist.',
+        type: 'warning'
+      });
       return;
     }
 
@@ -119,9 +183,21 @@ export default function Products() {
         productPrice: product.price,
       });
       setLoadingStates(prev => ({ ...prev, [product.id]: '' }));
+      setPopup({
+        isOpen: true,
+        title: 'Success!',
+        message: `${product.name} has been added to your wishlist.`,
+        type: 'success'
+      });
     } catch (error) {
       console.error('Failed to add to wishlist:', error);
       setLoadingStates(prev => ({ ...prev, [product.id]: '' }));
+      setPopup({
+        isOpen: true,
+        title: 'Error',
+        message: 'Failed to add item to wishlist. Please try again.',
+        type: 'error'
+      });
     }
   };
 
@@ -252,35 +328,45 @@ export default function Products() {
                   className={`action-btn cart-btn ${loadingStates[product.id] === 'cart' ? 'loading' : ''}`}
                   onClick={(e) => handleAddToCart(e, product)}
                   disabled={loadingStates[product.id] === 'cart'}
+                  title="Add to Cart"
                 >
                   {loadingStates[product.id] === 'cart' ? (
                     <div className="loading-spinner"></div>
                   ) : (
-                    <ShoppingCart size={16} />
+                    <ShoppingCart size={18} />
                   )}
-                  Add to Cart
                 </button>
                 <button 
                   className={`action-btn wishlist-btn ${isInWishlist(product.id) ? 'active' : ''} ${loadingStates[product.id] === 'wishlist' ? 'loading' : ''}`}
                   onClick={(e) => handleAddToWishlist(e, product)}
                   disabled={loadingStates[product.id] === 'wishlist'}
+                  title={isInWishlist(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
                 >
                   {loadingStates[product.id] === 'wishlist' ? (
                     <div className="loading-spinner"></div>
                   ) : (
-                    <Heart size={16} fill={isInWishlist(product.id) ? 'currentColor' : 'none'} />
+                    <Heart size={18} fill={isInWishlist(product.id) ? 'currentColor' : 'none'} />
                   )}
-                  {isInWishlist(product.id) ? 'In Wishlist' : 'Wishlist'}
                 </button>
-                <Link to={`/products/${product.id}`} className="action-btn view-btn">
-                  <Eye size={16} />
-                  View Details
+                <Link to={`/products/${product.id}`} className="action-btn view-btn" title="View Details">
+                  <Eye size={18} />
                 </Link>
               </div>
             </div>
           ))}
         </main>
       </div>
+      
+      {/* Popup Modal */}
+      <PopupModal
+        isOpen={popup.isOpen}
+        onClose={closePopup}
+        title={popup.title}
+        message={popup.message}
+        type={popup.type}
+        autoClose={popup.type === 'success'}
+        autoCloseDelay={3000}
+      />
     </section>
   );
 } 

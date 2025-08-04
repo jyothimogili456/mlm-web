@@ -4,6 +4,7 @@ import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { apiUtils } from "../api";
 import { ShoppingCart, Heart, Loader, Eye } from "lucide-react";
+import PopupModal from "../components/PopupModal";
 import "./ProductDetails.css";
 
 interface Product {
@@ -32,6 +33,17 @@ const ProductDetails: React.FC = () => {
   const [mainImg, setMainImg] = useState("");
   const [tab, setTab] = useState(0);
   const [loadingStates, setLoadingStates] = useState<{ cart: boolean; wishlist: boolean }>({ cart: false, wishlist: false });
+  const [popup, setPopup] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: 'success' | 'error' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info'
+  });
   
   const { addToCart } = useCart();
   const { addToWishlist, isInWishlist } = useWishlist();
@@ -48,8 +60,28 @@ const ProductDetails: React.FC = () => {
         if (response.ok) {
           const result = await response.json();
           const productData = result.data;
-          setProduct(productData);
-          setMainImg(productData.image);
+          
+          // Map the API response to match the expected Product interface
+          const mappedProduct = {
+            id: productData.id,
+            name: productData.productName || productData.name,
+            image: productData.image || productData.productImage || 'https://via.placeholder.com/300x300?text=Product',
+            category: productData.category || 'General',
+            itemCode: productData.itemCode || productData.productCode || productData.id.toString(),
+            mrp: productData.mrp || productData.productMrp || productData.productPrice * 1.2, // 20% markup as MRP
+            price: productData.productPrice || productData.price,
+            rating: productData.rating || 4.0,
+            description: productData.description || productData.productDescription || 'Product description coming soon...',
+            productName: productData.productName || productData.name,
+            productPrice: productData.productPrice || productData.price,
+            productCount: productData.productCount || 0,
+            productStatus: productData.productStatus || 'active',
+            productCode: productData.productCode || productData.id
+          };
+          
+          console.log('Mapped Product:', mappedProduct);
+          setProduct(mappedProduct);
+          setMainImg(mappedProduct.image);
         } else {
           setError('Product not found');
         }
@@ -68,7 +100,12 @@ const ProductDetails: React.FC = () => {
     if (!product) return;
     
     if (!apiUtils.isLoggedIn()) {
-      alert('Please login to add items to cart');
+      setPopup({
+        isOpen: true,
+        title: 'Login Required',
+        message: 'Please login to add items to your cart.',
+        type: 'warning'
+      });
       return;
     }
 
@@ -77,9 +114,21 @@ const ProductDetails: React.FC = () => {
     try {
       await addToCart(product.id, qty);
       setLoadingStates(prev => ({ ...prev, cart: false }));
+      setPopup({
+        isOpen: true,
+        title: 'Success!',
+        message: `${qty} ${qty === 1 ? 'item' : 'items'} of ${product.name} added to your cart.`,
+        type: 'success'
+      });
     } catch (error) {
       console.error('Failed to add to cart:', error);
       setLoadingStates(prev => ({ ...prev, cart: false }));
+      setPopup({
+        isOpen: true,
+        title: 'Error',
+        message: 'Failed to add item to cart. Please try again.',
+        type: 'error'
+      });
     }
   };
 
@@ -87,7 +136,12 @@ const ProductDetails: React.FC = () => {
     if (!product) return;
     
     if (!apiUtils.isLoggedIn()) {
-      alert('Please login to add items to wishlist');
+      setPopup({
+        isOpen: true,
+        title: 'Login Required',
+        message: 'Please login to add items to your wishlist.',
+        type: 'warning'
+      });
       return;
     }
 
@@ -100,9 +154,21 @@ const ProductDetails: React.FC = () => {
         productPrice: product.price,
       });
       setLoadingStates(prev => ({ ...prev, wishlist: false }));
+      setPopup({
+        isOpen: true,
+        title: 'Success!',
+        message: `${product.name} has been added to your wishlist.`,
+        type: 'success'
+      });
     } catch (error) {
       console.error('Failed to add to wishlist:', error);
       setLoadingStates(prev => ({ ...prev, wishlist: false }));
+      setPopup({
+        isOpen: true,
+        title: 'Error',
+        message: 'Failed to add item to wishlist. Please try again.',
+        type: 'error'
+      });
     }
   };
 
@@ -133,6 +199,10 @@ const ProductDetails: React.FC = () => {
   // Generate gallery images (using the same image for now)
   const gallery = [product.image, product.image, product.image, product.image];
 
+  const closePopup = () => {
+    setPopup(prev => ({ ...prev, isOpen: false }));
+  };
+
   const tabContent = [
     {
       label: "Product Details",
@@ -142,7 +212,7 @@ const ProductDetails: React.FC = () => {
           <ul className="product-detail-specs">
             <li><strong>Category:</strong> {product.category}</li>
             <li><strong>Item Code:</strong> {product.itemCode}</li>
-            <li><strong>Price:</strong> ₹{product.price.toLocaleString()}</li>
+            <li><strong>Price:</strong> ₹{(product.price || 0).toLocaleString()}</li>
             <li><strong>Rating:</strong> {product.rating} / 5</li>
           </ul>
         </div>
@@ -182,7 +252,7 @@ const ProductDetails: React.FC = () => {
             <span>Category: {product.category}</span>
           </div>
           <div className="product-detail-price">
-            MRP: <span>₹{product.price.toLocaleString()}</span>
+            MRP: <span>₹{(product.price || 0).toLocaleString()}</span>
             <span className="product-detail-tax">(Inclusive of all taxes)</span>
           </div>
           <div className="product-detail-qty-row">
@@ -252,6 +322,17 @@ const ProductDetails: React.FC = () => {
         ))}
       </div>
       {tabContent[tab].render(product)}
+      
+      {/* Popup Modal */}
+      <PopupModal
+        isOpen={popup.isOpen}
+        onClose={closePopup}
+        title={popup.title}
+        message={popup.message}
+        type={popup.type}
+        autoClose={popup.type === 'success'}
+        autoCloseDelay={3000}
+      />
     </div>
   );
 };
