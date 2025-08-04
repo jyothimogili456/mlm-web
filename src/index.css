@@ -1,0 +1,99 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Global full-width container */
+.full-width-container {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Responsive padding for sections */
+.section-container {
+  width: 100%;
+  padding: 0 2rem;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .section-container {
+    padding: 0 1rem;
+  }
+}
+
+@media (min-width: 1400px) {
+  .section-container {
+    padding: 0 4rem;
+  }
+}
+
+@media (min-width: 1800px) {
+  .section-container {
+    padding: 0 6rem;
+  }
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Global section entrance animation */
+@keyframes sectionFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.featured-products-section,
+.how-it-works,
+.rewards-preview-section,
+.testimonial-slider-section,
+.finalcta-banner-section,
+.referral-countdown-section {
+  opacity: 0;
+  transform: translateY(40px);
+  animation: sectionFadeIn 0.9s cubic-bezier(.4,2,.6,1) 0.2s forwards;
+}
+.how-it-works {
+  animation-delay: 0.3s;
+}
+.featured-products-section {
+  animation-delay: 0.4s;
+}
+.rewards-preview-section {
+  animation-delay: 0.5s;
+}
+.testimonial-slider-section {
+  animation-delay: 0.6s;
+}
+.finalcta-banner-section {
+  animation-delay: 0.7s;
+}
+.referral-countdown-section {
+  animation-delay: 0.8s;
+}
+
+/* Scroll-triggered section animation */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s cubic-bezier(.4,2,.6,1), transform 0.7s cubic-bezier(.4,2,.6,1);
+}
+.animate-on-scroll.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}

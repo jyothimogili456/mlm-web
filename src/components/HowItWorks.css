@@ -1,0 +1,96 @@
+.how-it-works {
+  padding: 3rem 0 2rem 0;
+  text-align: center;
+}
+
+.how-it-works h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2.5rem;
+  letter-spacing: 0.02em;
+}
+
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 2rem;
+  box-sizing: border-box;
+}
+
+.how-card {
+  background: rgba(255,255,255,0.18);
+  border: 1.5px solid rgba(255,255,255,0.22);
+  box-shadow: 0 4px 24px 0 rgba(80, 80, 180, 0.10);
+  backdrop-filter: blur(14px);
+  border-radius: 1.5rem;
+  padding: 2.5rem 1.25rem 2rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: box-shadow 0.2s, transform 0.2s, background 0.2s;
+  min-height: 260px;
+}
+
+.how-card:hover {
+  background: #ede9fe;
+}
+
+.how-card h3 {
+  margin-top: 1.25rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #4f46e5;
+}
+
+.how-card p {
+  margin-top: 0.5rem;
+  color: #312e81;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.how-card svg {
+  color: #7c3aed;
+  background: rgba(124,58,237,0.08);
+  border-radius: 50%;
+  padding: 0.5rem;
+}
+
+@media (max-width: 900px) {
+  .how-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .how-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+  .how-card {
+    padding: 1.5rem 0.75rem 1.25rem 0.75rem;
+    min-height: 180px;
+  }
+  .how-it-works h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1.2rem;
+  }
+}
+
+@media (min-width: 1400px) {
+  .how-grid {
+    padding: 0 4rem;
+  }
+}
+
+@media (min-width: 1800px) {
+  .how-grid {
+    padding: 0 6rem;
+  }
+}

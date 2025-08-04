@@ -1,0 +1,141 @@
+.settings-dashboard-panel {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 0 1rem 2rem 1rem;
+}
+.settings-form {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 8px 0 rgba(124, 58, 237, 0.07);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.settings-section {
+  margin-bottom: 1.5rem;
+}
+.settings-section-title {
+  font-size: 1.08rem;
+  color: #7c3aed;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+}
+.settings-field-row {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+.settings-input {
+  padding: 0.7rem 1rem;
+  border: 1.5px solid #e0e7ff;
+  border-radius: 0.6rem;
+  font-size: 1.05rem;
+  background: #f8fbff;
+  color: #232220;
+  transition: border 0.18s;
+}
+.settings-input:focus {
+  border: 1.5px solid #7c3aed;
+  outline: none;
+}
+.settings-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1rem;
+  color: #232220;
+  font-weight: 500;
+}
+.settings-btn {
+  background: #7c3aed;
+  color: #fff;
+  border: none;
+  border-radius: 0.6rem;
+  padding: 0.7rem 1.5rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.settings-btn:hover {
+  background: #5b21b6;
+}
+.settings-btn.delete-btn {
+  background: #b91c1c;
+  color: #fff;
+  margin-left: 0.5rem;
+}
+.settings-btn.delete-btn:hover {
+  background: #7c3aed;
+  color: #fff;
+}
+.settings-divider {
+  height: 1px;
+  background: #e0e7ff;
+  margin: 1.5rem 0;
+  border: none;
+}
+.settings-danger-section {
+  margin-bottom: 0;
+}
+.settings-tooltip {
+  background: #fffbe6;
+  color: #b91c1c;
+  border: 1px solid #fbbf24;
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.98rem;
+  margin-left: 0.7rem;
+  box-shadow: 0 1px 4px 0 rgba(124, 58, 237, 0.08);
+  position: absolute;
+  z-index: 10;
+}
+.settings-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(60, 60, 60, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.settings-modal {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 24px 0 rgba(124, 58, 237, 0.13);
+  padding: 2rem 2.5rem;
+  min-width: 320px;
+  max-width: 90vw;
+  text-align: center;
+}
+.settings-modal-title {
+  font-size: 1.2rem;
+  color: #b91c1c;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+.settings-modal-message {
+  font-size: 1.05rem;
+  color: #232220;
+  margin-bottom: 1.5rem;
+}
+.settings-modal-actions {
+  display: flex;
+  gap: 1.2rem;
+  justify-content: center;
+}
+@media (max-width: 600px) {
+  .settings-dashboard-panel {
+    padding: 0.5rem 0.2rem 1.2rem 0.2rem;
+  }
+  .settings-form {
+    padding: 1rem 0.5rem;
+    border-radius: 0.7rem;
+  }
+  .settings-modal {
+    padding: 1rem 0.5rem;
+    border-radius: 0.7rem;
+  }
+} 

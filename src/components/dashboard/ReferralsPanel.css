@@ -1,0 +1,379 @@
+/* Referral Dashboard Panel Styles */
+.referral-dashboard-panel {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 0 1rem 2rem 1rem;
+}
+
+.referral-top-row {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+
+.referral-link-box {
+  flex: 1 1 400px;
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 8px 0 rgba(124, 58, 237, 0.07);
+  padding: 1rem 1.2rem;
+  min-width: 260px;
+}
+
+.referral-link-label {
+  font-size: 1.05rem;
+  color: #7c3aed;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.referral-link-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.referral-link-input {
+  flex: 1;
+  padding: 0.5rem 0.8rem;
+  border: 1.5px solid #e0e7ff;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: #3b3b4f;
+  background: #f8fbff;
+}
+
+.referral-copy-btn, .referral-share-btn {
+  background: #7c3aed;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.4rem 1rem;
+  font-size: 0.98rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: background 0.18s;
+}
+
+.referral-copy-btn:hover, .referral-share-btn:hover {
+  background: #5b21b6;
+}
+
+.referral-stats-box {
+  flex: 1.5 1 180px;
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 8px 0 rgba(124, 58, 237, 0.07);
+  padding: 1.2rem 1.2rem 1.5rem 1.2rem;
+  min-width: 180px;
+}
+
+.referral-stats-title {
+  font-size: 1.05rem;
+  color: #7c3aed;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.referral-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.referral-stat-item {
+  text-align: center;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 0.75rem;
+  border: 1px solid #e0e7ff;
+}
+
+.referral-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #7c3aed;
+  margin-bottom: 0.25rem;
+}
+
+.referral-stat-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.referral-list-section {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 8px 0 rgba(124, 58, 237, 0.07);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.referral-list-title {
+  font-size: 1.2rem;
+  color: #7c3aed;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.referral-empty {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+}
+
+.referral-empty p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.referral-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.referral-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 0.75rem;
+  border: 1px solid #e0e7ff;
+}
+
+.referral-item-info {
+  flex: 1;
+}
+
+.referral-item-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.referral-item-email {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.referral-item-date {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.referral-item-status {
+  flex-shrink: 0;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.status-paid {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.status-badge.status-pending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.referral-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e7eb;
+  border-top: 3px solid #7c3aed;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 0.75rem;
+}
+
+.referral-loading p {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.referral-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+  background: #fef2f2;
+  border-radius: 0.75rem;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+.referral-error p {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+}
+
+.referral-retry-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.referral-retry-btn:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .referral-top-row {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .referral-link-box {
+    flex: none;
+    min-width: 0;
+  }
+  
+  .referral-stats-box {
+    flex: none;
+    min-width: 0;
+  }
+  
+  .referral-stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .referral-dashboard-panel {
+    margin: 1rem auto;
+    padding: 0 0.5rem 1rem 0.5rem;
+  }
+  
+  .referral-top-row {
+    margin-bottom: 1.5rem;
+  }
+  
+  .referral-link-box {
+    padding: 0.875rem 1rem;
+  }
+  
+  .referral-link-label {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .referral-link-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .referral-link-input {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .referral-copy-btn, .referral-share-btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.875rem;
+    justify-content: center;
+  }
+  
+  .referral-stats-box {
+    padding: 1rem;
+  }
+  
+  .referral-stats-title {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .referral-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .referral-stat-item {
+    padding: 0.625rem;
+  }
+  
+  .referral-stat-value {
+    font-size: 1.25rem;
+  }
+  
+  .referral-stat-label {
+    font-size: 0.8rem;
+  }
+  
+  .referral-list-section {
+    padding: 1rem;
+  }
+  
+  .referral-list-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .referral-item {
+    padding: 0.875rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .referral-item-name {
+    font-size: 0.95rem;
+  }
+  
+  .referral-item-email {
+    font-size: 0.8rem;
+  }
+  
+  .referral-item-date {
+    font-size: 0.75rem;
+  }
+  
+  .status-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+} 
