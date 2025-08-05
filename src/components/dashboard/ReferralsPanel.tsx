@@ -179,7 +179,7 @@ export default function ReferralsPanel() {
                       {page}
                     </button>
                   ))}
-                </div>
+            </div>
                 
                 <button 
                   className="pagination-btn"
@@ -189,14 +189,14 @@ export default function ReferralsPanel() {
                   Next
                   <ChevronRight size={16} />
                 </button>
-              </div>
+          </div>
             )}
 
             {/* Page Info */}
             {referrals.length > 0 && (
               <div className="page-info">
                 Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, referrals.length)} of {referrals.length} referrals
-              </div>
+      </div>
             )}
           </>
         )}

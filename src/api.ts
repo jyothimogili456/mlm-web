@@ -159,6 +159,29 @@ export async function apiPut<T = any>(path: string, data: any, token?: string): 
   return res.json();
 }
 
+export async function apiDelete<T = any>(path: string, token?: string): Promise<T> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  
+  const res = await fetch(BASE_URL + path, {
+    method: "DELETE",
+    headers,
+    credentials: "include",
+  });
+  
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({ message: "Server error" }));
+    throw new Error(errorData.message || "Server error");
+  }
+  
+  return res.json();
+}
+
 // User API functions
 export const userApi = {
   // Register new user
@@ -263,13 +286,13 @@ export const productApi = {
   },
 
   // Place order
-  placeOrder: async (orderData: { userId: number; productName: string; quantity?: number }): Promise<ApiResponse<any>> => {
-    return apiPost<ApiResponse<any>>('/product/order', orderData);
+  placeOrder: async (orderData: { userId: number; productName: string; quantity?: number }, token: string): Promise<ApiResponse<any>> => {
+    return apiPost<ApiResponse<any>>('/product/order', orderData, token);
   },
 
   // Get order history
-  getOrderHistory: async (userId: number): Promise<ApiResponse<any[]>> => {
-    return apiGet<ApiResponse<any[]>>(`/product/order-history/${userId}`);
+  getOrderHistory: async (userId: number, token?: string): Promise<ApiResponse<any[]>> => {
+    return apiGet<ApiResponse<any[]>>(`/product/order-history/${userId}`, token);
   }
 };
 
@@ -286,20 +309,26 @@ export const cartApi = {
   addToCart: async (userId: number, productId: number, quantity: number = 1, token: string): Promise<ApiResponse<any>> => {
     return apiPost<ApiResponse<any>>(`/cart/add/${userId}`, { productId, quantity }, token);
   },
-  getCart: async (userId: number, token: string): Promise<ApiResponse<any[]>> => {
-    return apiGet<ApiResponse<any[]>>(`/cart/${userId}`, token);
+  getCartItems: async (userId: number, token: string): Promise<ApiResponse<any[]>> => {
+    return apiGet<ApiResponse<any[]>>(`/cart/getCartItems/${userId}`, token);
   },
   getCartTotal: async (userId: number, token: string): Promise<ApiResponse<any>> => {
     return apiGet<ApiResponse<any>>(`/cart/total/${userId}`, token);
   },
-  updateCartItem: async (cartId: number, userId: number, quantity: number, token: string): Promise<ApiResponse<any>> => {
-    return apiPost<ApiResponse<any>>(`/cart/update/${cartId}/${userId}`, { quantity }, token);
+  updateCartItemQuantity: async (cartId: number, userId: number, quantity: number, token: string): Promise<ApiResponse<any>> => {
+    return apiPut<ApiResponse<any>>(`/cart/updateQuantity/${cartId}/${userId}`, { quantity }, token);
   },
   removeFromCart: async (cartId: number, userId: number, token: string): Promise<ApiResponse<any>> => {
-    return apiPost<ApiResponse<any>>(`/cart/remove/${cartId}/${userId}`, {}, token);
+    return apiDelete<ApiResponse<any>>(`/cart/remove/${cartId}/${userId}`, token);
   },
   clearCart: async (userId: number, token: string): Promise<ApiResponse<any>> => {
-    return apiPost<ApiResponse<any>>(`/cart/clear/${userId}`, {}, token);
+    return apiDelete<ApiResponse<any>>(`/cart/clear/${userId}`, token);
+  },
+  isInCart: async (userId: number, productId: number, token: string): Promise<ApiResponse<{ isInCart: boolean }>> => {
+    return apiGet<ApiResponse<{ isInCart: boolean }>>(`/cart/check/${userId}/${productId}`, token);
+  },
+  getCartCount: async (userId: number, token: string): Promise<ApiResponse<any>> => {
+    return apiGet<ApiResponse<any>>(`/cart/count/${userId}`, token);
   }
 };
 
@@ -315,10 +344,10 @@ export const wishlistApi = {
     return apiGet<ApiResponse<any[]>>(`/wishlist/getWishListProducts/${userId}`, token);
   },
   removeFromWishlist: async (wishlistId: number, userId: number, token: string): Promise<ApiResponse<any>> => {
-    return apiPost<ApiResponse<any>>(`/wishlist/remove/${wishlistId}/${userId}`, {}, token);
+    return apiDelete<ApiResponse<any>>(`/wishlist/remove/${wishlistId}/${userId}`, token);
   },
   clearWishlist: async (userId: number, token: string): Promise<ApiResponse<any>> => {
-    return apiPost<ApiResponse<any>>(`/wishlist/clear/${userId}`, {}, token);
+    return apiDelete<ApiResponse<any>>(`/wishlist/clear/${userId}`, token);
   },
   isInWishlist: async (userId: number, productId: number, token: string): Promise<ApiResponse<{ isInWishlist: boolean }>> => {
     return apiGet<ApiResponse<{ isInWishlist: boolean }>>(`/wishlist/check/${userId}/${productId}`, token);

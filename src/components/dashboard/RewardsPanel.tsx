@@ -231,10 +231,10 @@ export default function RewardsPanel() {
         // User doesn't have bank details - show the form
         setShowBankModal(id);
         setExistingBankDetails(null);
-        setBankFormData({
-          bankName: "",
-          accountNumber: "",
-          ifscCode: "",
+    setBankFormData({
+      bankName: "",
+      accountNumber: "",
+      ifscCode: "",
           accountHolderName: ""
         });
       }
@@ -501,7 +501,7 @@ export default function RewardsPanel() {
                     <button className="rewards-package-claim-btn">
                       Claim {pkg.description}
                     </button>
-      </div>
+                  </div>
                 )}
               </div>
             );
@@ -523,10 +523,10 @@ export default function RewardsPanel() {
           <tbody>
             {rewardHistory.map((reward, i) => (
               <tr key={i}>
-                <td>{reward.date}</td>
-                <td>{reward.source}</td>
+                  <td>{reward.date}</td>
+                  <td>{reward.source}</td>
                 <td>{reward.referralsCount}</td>
-                <td>
+                  <td>
                   {pendingRewards.includes(reward.id) ? (
                     <button className="rewards-pending-btn" disabled>
                       Pending
@@ -539,8 +539,8 @@ export default function RewardsPanel() {
                       Redeem Now
                     </button>
                   )}
-                </td>
-              </tr>
+                  </td>
+                </tr>
             ))}
           </tbody>
         </table>
@@ -557,8 +557,8 @@ export default function RewardsPanel() {
               </h3>
               <button className="bank-modal-close" onClick={closeModal}>
                 <X size={20} />
-              </button>
-            </div>
+                          </button>
+                        </div>
             <div className="bank-modal-content">
               {isLoadingBankDetails ? (
                 <div className="bank-loading">
@@ -584,67 +584,67 @@ export default function RewardsPanel() {
                   <div className="bank-details-grid">
                     <div className="bank-detail-item">
                       <label className="bank-detail-label">Bank Name:</label>
-                      <input
-                        type="text"
+                              <input
+                                type="text"
                         className={`bank-detail-input ${bankFormErrors.bankName ? 'error' : ''}`}
                         placeholder="Enter bank name (e.g., State Bank of India)"
-                        value={bankFormData.bankName}
-                        onChange={(e) => handleInputChange('bankName', e.target.value)}
-                      />
+                                value={bankFormData.bankName}
+                                onChange={(e) => handleInputChange('bankName', e.target.value)}
+                              />
                       {bankFormErrors.bankName && (
                         <span className="bank-error-text">{bankFormErrors.bankName}</span>
                       )}
-                    </div>
+                            </div>
                     
                     <div className="bank-detail-item">
                       <label className="bank-detail-label">Account Number:</label>
-                      <input
-                        type="text"
+                              <input
+                                type="text"
                         className={`bank-detail-input ${bankFormErrors.accountNumber ? 'error' : ''}`}
                         placeholder="Enter account number (9-18 digits)"
-                        value={bankFormData.accountNumber}
-                        onChange={(e) => handleInputChange('accountNumber', e.target.value)}
+                                value={bankFormData.accountNumber}
+                                onChange={(e) => handleInputChange('accountNumber', e.target.value)}
                         maxLength={18}
-                      />
+                              />
                       {bankFormErrors.accountNumber && (
                         <span className="bank-error-text">{bankFormErrors.accountNumber}</span>
                       )}
-                    </div>
+                            </div>
                     
                     <div className="bank-detail-item">
                       <label className="bank-detail-label">IFSC Code:</label>
-                      <input
-                        type="text"
+                              <input
+                                type="text"
                         className={`bank-detail-input ${bankFormErrors.ifscCode ? 'error' : ''}`}
                         placeholder="Enter IFSC code (e.g., SBIN0001234)"
-                        value={bankFormData.ifscCode}
+                                value={bankFormData.ifscCode}
                         onChange={(e) => handleInputChange('ifscCode', e.target.value.toUpperCase())}
                         maxLength={11}
-                      />
+                              />
                       {bankFormErrors.ifscCode && (
                         <span className="bank-error-text">{bankFormErrors.ifscCode}</span>
                       )}
-                    </div>
+                            </div>
                     
                     <div className="bank-detail-item">
                       <label className="bank-detail-label">Account Holder Name:</label>
-                      <input
-                        type="text"
+                              <input
+                                type="text"
                         className={`bank-detail-input ${bankFormErrors.accountHolderName ? 'error' : ''}`}
-                        placeholder="Enter account holder name"
+                                placeholder="Enter account holder name"
                         value={bankFormData.accountHolderName}
                         onChange={(e) => handleInputChange('accountHolderName', e.target.value)}
-                      />
+                              />
                       {bankFormErrors.accountHolderName && (
                         <span className="bank-error-text">{bankFormErrors.accountHolderName}</span>
                       )}
-                    </div>
-                  </div>
+                            </div>
+                          </div>
                   
                   <div className="bank-modal-actions">
-                    <button 
+                            <button 
                       className="bank-submit-btn"
-                      onClick={handleSubmitBankDetails}
+                              onClick={handleSubmitBankDetails}
                       disabled={isSubmitting || !bankFormData.bankName || !bankFormData.accountNumber || !bankFormData.ifscCode || !bankFormData.accountHolderName}
                     >
                       {isSubmitting ? (
@@ -680,12 +680,12 @@ export default function RewardsPanel() {
                 </button>
                 <button className="thank-you-close-btn" onClick={closeThankYouModal}>
                   Close
-                </button>
-              </div>
-            </div>
-          </div>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
         </div>
-      )}
+                )}
     </div>
   );
 } 

@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { CheckCircle, Truck, Clock, FileText } from "react-feather";
+import React, { useState, useEffect } from "react";
+import { CheckCircle, Truck, Clock, FileText, Loader } from "react-feather";
+import { apiUtils, productApi } from "../../api";
 import { jsPDF } from "jspdf";
 import camelqLogo from "../../assets/camelq logo without background (1).png";
 import "./MyOrdersPanel.css";
@@ -12,13 +13,7 @@ interface Order {
   amount: number;
 }
 
-const orders: Order[] = [
-  { id: "ORD1234", product: "Wireless Earbuds", date: "2024-05-01", status: "Delivered", amount: 1999 },
-  { id: "ORD1235", product: "Smart Watch", date: "2024-04-28", status: "Shipped", amount: 2999 },
-  { id: "ORD1236", product: "Gift Card", date: "2024-04-20", status: "Processing", amount: 500 },
-  { id: "ORD1237", product: "Bluetooth Speaker", date: "2024-04-18", status: "Delivered", amount: 1499 },
-  { id: "ORD1238", product: "Fitness Band", date: "2024-04-15", status: "Shipped", amount: 999 },
-];
+// Remove hardcoded orders - will be fetched from API
 const statusOptions = ["All", "Delivered", "Shipped", "Processing"];
 const dateOptions = ["All", "Last 7 days", "Last 30 days", "2024-05", "2024-04"];
 const ORDERS_PER_PAGE = 3;
@@ -30,6 +25,9 @@ function getStatusIcon(status: string) {
 }
 
 export default function MyOrdersPanel() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState("All");
   const [dateFilter, setDateFilter] = useState("All");
   const [page, setPage] = useState(1);
@@ -44,6 +42,51 @@ export default function MyOrdersPanel() {
       (dateFilter.length === 7 && order.date.startsWith(dateFilter));
     return statusMatch && dateMatch;
   });
+
+  // Fetch order history from API
+  useEffect(() => {
+    const fetchOrderHistory = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const userData = apiUtils.getUserData();
+        const token = apiUtils.getToken();
+        
+        if (!userData || !token) {
+          setError('Please login to view your orders');
+          setLoading(false);
+          return;
+        }
+
+        const result = await productApi.getOrderHistory(userData.id, token);
+        console.log('Order History API Response:', result);
+        
+        if (result.data) {
+          // Transform API data to match our Order interface
+          const transformedOrders = result.data.map((order: any) => ({
+            id: order.id?.toString() || order.orderId?.toString() || `ORD${Math.random().toString(36).substr(2, 9)}`,
+            product: order.productName || order.product || 'Product',
+            date: order.created_at || order.orderDate || new Date().toISOString().split('T')[0],
+            status: order.status || 'Processing',
+            amount: order.amount || order.totalAmount || 0
+          }));
+          
+          setOrders(transformedOrders);
+        } else {
+          setOrders([]);
+        }
+      } catch (error) {
+        console.error('Error fetching order history:', error);
+        setError('Failed to load orders. Please try again.');
+        setOrders([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrderHistory();
+  }, []);
 
   const totalPages = Math.ceil(filteredOrders.length / ORDERS_PER_PAGE);
   const paginatedOrders = filteredOrders.slice((page - 1) * ORDERS_PER_PAGE, page * ORDERS_PER_PAGE);
@@ -270,6 +313,33 @@ export default function MyOrdersPanel() {
       };
     }, 800);
   };
+
+  if (loading) {
+    return (
+      <div className="orders-dashboard-panel">
+        <div className="orders-loading">
+          <Loader size={24} className="animate-spin" />
+          <p>Loading your orders...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="orders-dashboard-panel">
+        <div className="orders-error">
+          <p>{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="orders-retry-btn"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="orders-dashboard-panel">

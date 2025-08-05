@@ -153,6 +153,53 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* Loading and Error States */
+.orders-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+}
+
+.orders-loading p {
+  margin-top: 1rem;
+  color: #6b7280;
+  font-size: 1.1rem;
+}
+
+.orders-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+}
+
+.orders-error p {
+  color: #dc2626;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.orders-retry-btn {
+  padding: 0.75rem 1.5rem;
+  background: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 0.6rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.orders-retry-btn:hover {
+  background: #6d28d9;
+}
 @media (max-width: 900px) {
   .orders-dashboard-panel {
     padding: 0.5rem 0.2rem 1.2rem 0.2rem;

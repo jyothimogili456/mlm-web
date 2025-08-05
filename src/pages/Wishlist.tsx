@@ -3,7 +3,7 @@ import { useWishlist } from "../context/WishlistContext";
 import { useCart } from "../context/CartContext";
 import { apiUtils } from "../api";
 import { Heart, ShoppingCart, Trash2, Loader, Eye } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ConfirmationModal from "../components/ConfirmationModal";
 import "./Wishlist.css";
 
@@ -27,6 +27,7 @@ interface Product {
 const Wishlist: React.FC = () => {
   const { state: wishlistState, removeFromWishlist, clearWishlist, loadWishlist } = useWishlist();
   const { addToCart } = useCart();
+  const navigate = useNavigate();
   
   // Modal states
   const [deleteModal, setDeleteModal] = useState<{
@@ -81,6 +82,8 @@ const Wishlist: React.FC = () => {
     try {
       await addToCart(product.productId, 1);
       await removeFromWishlist(product.wishlistId);
+      // Navigate to cart page after successfully moving item to cart
+      navigate('/cart');
     } catch (error) {
       console.error('Failed to move to cart:', error);
     } finally {

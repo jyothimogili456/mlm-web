@@ -111,30 +111,30 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
       console.log('Making wishlist API call for user ID:', userData.id);
       const result = await wishlistApi.getWishlistProducts(userData.id, token);
       console.log('Wishlist API Response Data:', result);
-      
-      // Handle different possible response structures
-      let items = [];
+        
+        // Handle different possible response structures
+        let items = [];
       if (result.data) {
         items = result.data || [];
       } else if (Array.isArray(result)) {
         items = result;
-      } else {
+        } else {
         items = [];
-      }
-      
-      console.log('Processed Wishlist Data:', { items, itemCount: items.length });
-      
-      dispatch({ 
-        type: "SET_WISHLIST", 
-        items: items
-      });
+        }
+        
+        console.log('Processed Wishlist Data:', { items, itemCount: items.length });
+        
+        dispatch({ 
+          type: "SET_WISHLIST", 
+          items: items
+        });
     } catch (error) {
       console.error('Wishlist API Network Error:', error);
       if (error instanceof Error && error.message.includes('401')) {
-        console.log('Unauthorized - token may be expired');
-        dispatch({ type: "SET_ERROR", error: "Your session has expired. Please login again." });
-        apiUtils.logoutAndRedirect('/login');
-      } else {
+          console.log('Unauthorized - token may be expired');
+          dispatch({ type: "SET_ERROR", error: "Your session has expired. Please login again." });
+          apiUtils.logoutAndRedirect('/login');
+        } else {
         dispatch({ type: "SET_ERROR", error: "Network error loading wishlist" });
       }
     }
@@ -157,16 +157,16 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const result = await wishlistApi.addToWishlist(userData.id, product, token);
-      console.log('Add to Wishlist Success:', result);
-      await loadWishlist(); // Reload wishlist to get updated data
+        console.log('Add to Wishlist Success:', result);
+        await loadWishlist(); // Reload wishlist to get updated data
     } catch (error) {
       console.error('Add to Wishlist Network Error:', error);
       if (error instanceof Error && error.message.includes('Product already in wishlist')) {
-        // This is not really an error, just inform the user
-        console.log('Product already in wishlist - this is expected behavior');
-        // Optionally reload wishlist to make sure it's up to date
-        await loadWishlist();
-      } else {
+          // This is not really an error, just inform the user
+          console.log('Product already in wishlist - this is expected behavior');
+          // Optionally reload wishlist to make sure it's up to date
+          await loadWishlist();
+        } else {
         dispatch({ type: "SET_ERROR", error: "Failed to add item to wishlist" });
       }
     }
@@ -182,7 +182,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       await wishlistApi.removeFromWishlist(wishlistId, userData.id, token);
-      await loadWishlist(); // Reload wishlist to get updated data
+        await loadWishlist(); // Reload wishlist to get updated data
     } catch (error) {
       console.error('Remove from Wishlist Error:', error);
       dispatch({ type: "SET_ERROR", error: "Failed to remove item from wishlist" });
@@ -199,7 +199,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       await wishlistApi.clearWishlist(userData.id, token);
-      dispatch({ type: "CLEAR_WISHLIST" });
+        dispatch({ type: "CLEAR_WISHLIST" });
     } catch (error) {
       console.error('Clear Wishlist Error:', error);
       dispatch({ type: "SET_ERROR", error: "Failed to clear wishlist" });

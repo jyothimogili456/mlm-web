@@ -14,7 +14,7 @@ import SupportPanel from "../components/dashboard/SupportPanel";
 import InvoicesPanel from "../components/dashboard/InvoicesPanel";
 import SpecialOffersPanel from "../components/dashboard/SpecialOffersPanel";
 import { DollarSign, Users, Loader } from "react-feather";
-import { apiUtils, userApi } from "../api";
+import { apiUtils, userApi, productApi } from "../api";
 import "./Dashboard.css";
 
 function DashboardHome() {
@@ -22,7 +22,16 @@ function DashboardHome() {
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [walletLoading, setWalletLoading] = useState(true);
   const [walletError, setWalletError] = useState<string | null>(null);
-  const referralLink = "https://giftshero.com/ref/GH1234";
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [ordersError, setOrdersError] = useState<string | null>(null);
+  const [referralCount, setReferralCount] = useState<number>(0);
+  const [referralCountLoading, setReferralCountLoading] = useState(true);
+  const [referralCountError, setReferralCountError] = useState<string | null>(null);
+  const [userData, setUserData] = useState<any>(null);
+  const referralLink = userData?.referral_code 
+    ? `https://giftshero.com/ref/${userData.referral_code}`
+    : "https://giftshero.com/ref/GH1234";
 
   // Fetch wallet balance
   useEffect(() => {
@@ -54,6 +63,94 @@ function DashboardHome() {
     };
 
     fetchWalletBalance();
+  }, []);
+
+  // Fetch user data and referral count
+  useEffect(() => {
+    const fetchUserDataAndReferrals = async () => {
+      try {
+        setReferralCountLoading(true);
+        setReferralCountError(null);
+        
+        const user = apiUtils.getUserData();
+        const token = apiUtils.getToken();
+        
+        if (!user || !token) {
+          setReferralCountError('Please login to view referral stats');
+          setReferralCountLoading(false);
+          return;
+        }
+
+        setUserData(user);
+        
+        if (user.referral_code) {
+          const result = await userApi.getUsersReferredBy(user.referral_code, token);
+          console.log('Referral Count API Response:', result);
+          
+          if (result.data) {
+            setReferralCount(result.data.length);
+          } else {
+            setReferralCount(0);
+          }
+        } else {
+          setReferralCount(0);
+        }
+      } catch (error) {
+        console.error('Error fetching referral count:', error);
+        setReferralCountError('Failed to load referral count');
+        setReferralCount(0);
+      } finally {
+        setReferralCountLoading(false);
+      }
+    };
+
+    fetchUserDataAndReferrals();
+  }, []);
+
+  // Fetch recent orders
+  useEffect(() => {
+    const fetchRecentOrders = async () => {
+      try {
+        setOrdersLoading(true);
+        setOrdersError(null);
+        
+        const userData = apiUtils.getUserData();
+        const token = apiUtils.getToken();
+        
+        if (!userData || !token) {
+          setOrdersError('Please login to view recent orders');
+          setOrdersLoading(false);
+          return;
+        }
+
+        const result = await productApi.getOrderHistory(userData.id, token);
+        console.log('Recent Orders API Response:', result);
+        
+        if (result.data) {
+          // Transform API data and take only the first 3 orders
+          const transformedOrders = result.data.map((order: any) => ({
+            id: order.id?.toString() || order.orderId?.toString() || `ORD${Math.random().toString(36).substr(2, 9)}`,
+            product: order.productName || order.product || 'Product',
+            date: order.created_at || order.orderDate || new Date().toISOString().split('T')[0],
+            status: order.status || 'Processing',
+            amount: order.amount || order.totalAmount || 0
+          }));
+          
+          // Take only the first 3 orders for recent orders
+          setRecentOrders(transformedOrders.slice(0, 3));
+        } else {
+          setRecentOrders([]);
+        }
+      } catch (error) {
+        console.error('Error fetching recent orders:', error);
+        setOrdersError('Failed to load recent orders');
+        setRecentOrders([]);
+      } finally {
+        setOrdersLoading(false);
+      }
+    };
+
+    fetchRecentOrders();
   }, []);
 
   const handleCopy = () => {
@@ -102,33 +199,48 @@ function DashboardHome() {
       <div className="gh-dashboard-main-widgets">
         <div className="gh-recent-orders-card gh-animate">
           <div className="gh-widget-title">Recent Orders</div>
+          {ordersLoading ? (
+            <div className="gh-orders-loading">
+              <Loader size={20} className="animate-spin" />
+              <span>Loading recent orders...</span>
+            </div>
+          ) : ordersError ? (
+            <div className="gh-orders-error">
+              <span>{ordersError}</span>
+            </div>
+          ) : recentOrders.length > 0 ? (
           <ul className="gh-orders-list">
-            <li className="gh-order-item">
-              <span className="gh-order-id">#ORD1234</span>
-              <span className="gh-order-product">Wireless Earbuds</span>
-              <span className="gh-order-status gh-status-delivered">Delivered</span>
-              <span className="gh-order-date">2024-05-01</span>
+              {recentOrders.map((order) => (
+                <li key={order.id} className="gh-order-item">
+                  <span className="gh-order-id">#{order.id}</span>
+                  <span className="gh-order-product">{order.product}</span>
+                  <span className={`gh-order-status gh-status-${order.status.toLowerCase()}`}>
+                    {order.status}
+                  </span>
+                  <span className="gh-order-date">{order.date}</span>
             </li>
-            <li className="gh-order-item">
-              <span className="gh-order-id">#ORD1235</span>
-              <span className="gh-order-product">Smart Watch</span>
-              <span className="gh-order-status gh-status-shipped">Shipped</span>
-              <span className="gh-order-date">2024-04-28</span>
-            </li>
-            <li className="gh-order-item">
-              <span className="gh-order-id">#ORD1236</span>
-              <span className="gh-order-product">Gift Card</span>
-              <span className="gh-order-status gh-status-processing">Processing</span>
-              <span className="gh-order-date">2024-04-20</span>
-            </li>
+              ))}
           </ul>
+          ) : (
+            <div className="gh-orders-empty">
+              <span>No recent orders found</span>
+            </div>
+          )}
         </div>
         <div className="gh-referral-widget gh-animate">
           <div className="gh-widget-title">Quick Referral Stats</div>
           <div className="gh-referral-stats-row">
             <div className="gh-referral-stat">
               <div className="gh-referral-icon"><Users size={22} /></div>
-              <div className="gh-referral-value">12</div>
+              <div className="gh-referral-value">
+                {referralCountLoading ? (
+                  <Loader size={16} className="animate-spin" />
+                ) : referralCountError ? (
+                  <span style={{ color: '#ef4444', fontSize: '14px' }}>Error</span>
+                ) : (
+                  referralCount
+                )}
+              </div>
               <div className="gh-referral-label">Direct Referrals</div>
             </div>
           </div>

@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useReducer, ReactNode, useEffect } from "react";
+import React, { createContext, useContext, useReducer, ReactNode, useEffect, useCallback } from "react";
 import { apiUtils } from "../api";
 
 type CartItem = {
-  id: number;
+  cartId: number;
   productId: number;
   productName: string;
   productPrice: number;
@@ -10,6 +10,13 @@ type CartItem = {
   productStatus?: string;
   productCount?: number;
   productCode?: number;
+  productPhoto?: string;
+  productDescription?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  userId?: number;
+  userName?: string;
+  userEmail?: string;
 };
 
 type CartState = {
@@ -72,11 +79,11 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       return {
         ...state,
         items: state.items.map(item =>
-          item.id === action.id ? { ...item, quantity: action.quantity } : item
+          item.cartId === action.id ? { ...item, quantity: action.quantity } : item
         ),
       };
     case "REMOVE_ITEM":
-      return { ...state, items: state.items.filter(item => item.id !== action.id) };
+      return { ...state, items: state.items.filter(item => item.cartId !== action.id) };
     case "CLEAR_CART":
       return { ...initialState };
     default:
@@ -107,7 +114,7 @@ export const useCart = () => useContext(CartContext);
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(cartReducer, initialState);
 
-  const loadCart = async () => {
+  const loadCart = useCallback(async () => {
     const userData = apiUtils.getUserData();
     const token = apiUtils.getToken();
     
@@ -133,35 +140,37 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     dispatch({ type: "SET_LOADING", loading: true });
     try {
-      const response = await fetch(`http://localhost:3000/cart/total/${userData.id}`, {
+      // Get cart items
+      const cartResponse = await fetch(`http://localhost:3000/cart/getCartItems/${userData.id}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
 
-      console.log('Cart API Response Status:', response.status);
+      console.log('Cart Items API Response Status:', cartResponse.status);
       
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Cart API Response Data:', data);
+      if (cartResponse.ok) {
+        const cartData = await cartResponse.json();
+        console.log('Cart Items API Response Data:', cartData);
         
-        // Handle different possible response structures
-        let items = [];
+        // Get cart total
+        const totalResponse = await fetch(`http://localhost:3000/cart/total/${userData.id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
         let total = 0;
-        let itemCount = 0;
-        
-        if (data.data) {
-          // If response has a data wrapper
-          items = data.data.items || data.data || [];
-          total = data.data.total || 0;
-          itemCount = data.data.itemCount || items.length;
-        } else {
-          // Direct response
-          items = data.items || data || [];
-          total = data.total || 0;
-          itemCount = data.itemCount || items.length;
+        if (totalResponse.ok) {
+          const totalData = await totalResponse.json();
+          total = totalData.data?.cartTotal || totalData.cartTotal || 0;
         }
+        
+        // Process cart items
+        const items = cartData.data || cartData || [];
+        const itemCount = items.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0);
         
         console.log('Processed Cart Data:', { items, total, itemCount });
         
@@ -172,24 +181,24 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           itemCount: itemCount 
         });
       } else {
-        const errorText = await response.text();
-        console.error('Cart API Error:', response.status, errorText);
+        const errorText = await cartResponse.text();
+        console.error('Cart API Error:', cartResponse.status, errorText);
         
-        if (response.status === 401) {
+        if (cartResponse.status === 401) {
           console.log('Unauthorized - token may be expired');
           dispatch({ type: "SET_ERROR", error: "Your session has expired. Please login again." });
           apiUtils.logoutAndRedirect('/login');
         } else {
-          dispatch({ type: "SET_ERROR", error: `Failed to load cart: ${response.status}` });
+          dispatch({ type: "SET_ERROR", error: `Failed to load cart: ${cartResponse.status}` });
         }
       }
     } catch (error) {
       console.error('Cart API Network Error:', error);
       dispatch({ type: "SET_ERROR", error: "Network error loading cart" });
     }
-  };
+  }, [dispatch]);
 
-  const addToCart = async (productId: number, quantity: number = 1) => {
+  const addToCart = useCallback(async (productId: number, quantity: number = 1) => {
     const userData = apiUtils.getUserData();
     const token = apiUtils.getToken();
     
@@ -244,9 +253,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       console.error('Add to Cart Network Error:', error);
       dispatch({ type: "SET_ERROR", error: "Network error adding to cart" });
     }
-  };
+  }, [loadCart]);
 
-  const updateCartItem = async (cartId: number, quantity: number) => {
+  const updateCartItem = useCallback(async (cartId: number, quantity: number) => {
     const userData = apiUtils.getUserData();
     const token = apiUtils.getToken();
     
@@ -255,7 +264,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/cart/update/${cartId}/${userData.id}`, {
+      const response = await fetch(`http://localhost:3000/cart/updateQuantity/${cartId}/${userData.id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -272,9 +281,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       dispatch({ type: "SET_ERROR", error: "Network error" });
     }
-  };
+  }, [loadCart]);
 
-  const removeFromCart = async (cartId: number) => {
+  const removeFromCart = useCallback(async (cartId: number) => {
     const userData = apiUtils.getUserData();
     const token = apiUtils.getToken();
     
@@ -299,9 +308,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       dispatch({ type: "SET_ERROR", error: "Network error" });
     }
-  };
+  }, [loadCart]);
 
-  const clearCart = async () => {
+  const clearCart = useCallback(async () => {
     const userData = apiUtils.getUserData();
     const token = apiUtils.getToken();
     
@@ -326,7 +335,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       dispatch({ type: "SET_ERROR", error: "Network error" });
     }
-  };
+  }, [dispatch]);
 
   // Don't automatically load cart on mount - only load when explicitly requested
   // This prevents 401 errors when browsing products without being logged in

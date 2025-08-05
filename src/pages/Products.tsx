@@ -67,7 +67,7 @@ export default function Products() {
         
         // Fetch products using the API function
         const result = await productApi.getAllProducts();
-        console.log('API Response:', result); // Debug log
+          console.log('API Response:', result); // Debug log
         
         // Map the API response to match the expected Product interface
         const mappedProducts = (result.data || []).map((product: any) => ({
