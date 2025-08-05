@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useWishlist } from "../../context/WishlistContext";
 import { useCart } from "../../context/CartContext";
 import { apiUtils } from "../../api";
-import { Heart, ShoppingCart, Trash2, Eye, Loader } from "lucide-react";
+import { Heart, ShoppingCart, Trash2, Eye, Loader, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import ConfirmationModal from "../ConfirmationModal";
 import "./WishlistPanel.css";
@@ -10,6 +10,8 @@ import "./WishlistPanel.css";
 const WishlistPanel: React.FC = () => {
   const { state: wishlistState, removeFromWishlist, clearWishlist } = useWishlist();
   const { addToCart } = useCart();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6);
   
   // Modal states
   const [deleteModal, setDeleteModal] = useState<{
@@ -93,6 +95,16 @@ const WishlistPanel: React.FC = () => {
     }
   };
 
+  // Calculate pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = wishlistState.items.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(wishlistState.items.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
   if (!apiUtils.isLoggedIn()) {
     return (
       <div className="wishlist-panel">
@@ -154,8 +166,9 @@ const WishlistPanel: React.FC = () => {
       )}
 
       {!wishlistState.loading && !wishlistState.error && wishlistState.items.length > 0 && (
-        <div className="wishlist-items">
-          {wishlistState.items.map((item) => (
+        <>
+          <div className="wishlist-items">
+            {currentItems.map((item) => (
             <div key={item.wishlistId} className="wishlist-item">
               <div className="wishlist-item-image">
                 <img 
@@ -200,6 +213,49 @@ const WishlistPanel: React.FC = () => {
             </div>
           ))}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="pagination">
+            <button 
+              className="pagination-btn"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft size={16} />
+              Previous
+            </button>
+            
+            <div className="page-numbers">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  className={`page-btn ${currentPage === page ? 'active' : ''}`}
+                  onClick={() => handlePageChange(page)}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+            
+            <button 
+              className="pagination-btn"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        )}
+
+        {/* Page Info */}
+        {wishlistState.items.length > 0 && (
+          <div className="page-info">
+            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, wishlistState.items.length)} of {wishlistState.items.length} items
+          </div>
+        )}
+        </>
       )}
 
       {/* Delete Confirmation Modal */}

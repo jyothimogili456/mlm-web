@@ -65,7 +65,7 @@ const ProductDetails: React.FC = () => {
           const mappedProduct = {
             id: productData.id,
             name: productData.productName || productData.name,
-            image: productData.image || productData.productImage || 'https://via.placeholder.com/300x300?text=Product',
+            image: productData.image || productData.photoUrl || productData.productImage || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM2QjcyODAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Qcm9kdWN0PC90ZXh0Pgo8L3N2Zz4K',
             category: productData.category || 'General',
             itemCode: productData.itemCode || productData.productCode || productData.id.toString(),
             mrp: productData.mrp || productData.productMrp || productData.productPrice * 1.2, // 20% markup as MRP

@@ -64,6 +64,29 @@ interface ReferralStats {
   monthNextGoal?: string;
 }
 
+interface BankDetails {
+  id: number;
+  accountNumber: string;
+  ifscCode: string;
+  bankName: string;
+  accountHolderName: string;
+  created_at: string;
+  updated_at: string;
+  user: User;
+}
+
+interface BankDetailsRequest {
+  bankName: string;
+  accountNumber: string;
+  ifscCode: string;
+  accountHolderName: string;
+}
+
+interface BankDetailsValidationResponse {
+  isValid: boolean;
+  errors: any[];
+}
+
 // Generic API functions
 export async function apiPost<T = any>(path: string, data: any, token?: string): Promise<T> {
   const headers: Record<string, string> = {
@@ -101,6 +124,30 @@ export async function apiGet<T = any>(path: string, token?: string): Promise<T> 
   const res = await fetch(BASE_URL + path, {
     method: "GET",
     headers,
+    credentials: "include",
+  });
+  
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({ message: "Server error" }));
+    throw new Error(errorData.message || "Server error");
+  }
+  
+  return res.json();
+}
+
+export async function apiPut<T = any>(path: string, data: any, token?: string): Promise<T> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  
+  const res = await fetch(BASE_URL + path, {
+    method: "PUT",
+    headers,
+    body: JSON.stringify(data),
     credentials: "include",
   });
   
@@ -162,6 +209,44 @@ export const userApi = {
   // Get wallet balance
   getWalletBalance: async (userId: number, token: string): Promise<ApiResponse<any>> => {
     return apiGet<ApiResponse<any>>(`/api/users/walletBalance/${userId}`, token);
+  }
+};
+
+// Bank Details API functions
+export const bankDetailsApi = {
+  // Get bank details for a user
+  getBankDetails: async (userId: number, token: string): Promise<ApiResponse<BankDetails>> => {
+    return apiGet<ApiResponse<BankDetails>>(`/api/bankDetails/getBankDetails/${userId}`, token);
+  },
+
+  // Create bank details for a user
+  createBankDetails: async (userId: number, bankDetails: BankDetailsRequest, token: string): Promise<ApiResponse<BankDetails>> => {
+    return apiPost<ApiResponse<BankDetails>>(`/api/bankDetails/createBankDetails/${userId}`, bankDetails, token);
+  },
+
+  // Update bank details for a user
+  updateBankDetails: async (userId: number, bankDetails: BankDetailsRequest, token: string): Promise<ApiResponse<BankDetails>> => {
+    return apiPut<ApiResponse<BankDetails>>(`/api/bankDetails/updateBankDetails/${userId}`, bankDetails, token);
+  },
+
+  // Create or update bank details for a user
+  createOrUpdateBankDetails: async (userId: number, bankDetails: BankDetailsRequest, token: string): Promise<ApiResponse<BankDetails>> => {
+    return apiPost<ApiResponse<BankDetails>>(`/api/bankDetails/createOrUpdateBankDetails/${userId}`, bankDetails, token);
+  },
+
+  // Delete bank details for a user
+  deleteBankDetails: async (userId: number, token: string): Promise<ApiResponse<any>> => {
+    return apiPost<ApiResponse<any>>(`/api/bankDetails/deleteBankDetails/${userId}`, {}, token);
+  },
+
+  // Check if bank details exist for a user
+  checkBankDetails: async (userId: number, token: string): Promise<ApiResponse<{ hasBankDetails: boolean }>> => {
+    return apiGet<ApiResponse<{ hasBankDetails: boolean }>>(`/api/bankDetails/checkBankDetails/${userId}`, token);
+  },
+
+  // Validate bank details without saving
+  validateBankDetails: async (bankDetails: BankDetailsRequest, token: string): Promise<ApiResponse<BankDetailsValidationResponse>> => {
+    return apiPost<ApiResponse<BankDetailsValidationResponse>>('/api/bankDetails/validateBankDetails', bankDetails, token);
   }
 };
 

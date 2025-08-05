@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Copy, Share2, Link } from "react-feather";
+import { Copy, Share2, Link, ChevronLeft, ChevronRight } from "react-feather";
 import { apiUtils, userApi } from "../../api";
 import "./ReferralsPanel.css";
 
@@ -19,6 +19,8 @@ export default function ReferralsPanel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userData, setUserData] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
 
   // Get user data and referral code
   useEffect(() => {
@@ -64,6 +66,16 @@ export default function ReferralsPanel() {
   };
 
   const totalEarnings = referrals.reduce((sum, r) => sum + (r.payment_status === 'PAID' ? 100 : 0), 0);
+
+  // Calculate pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentReferrals = referrals.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(referrals.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
 
   if (loading) {
     return (
@@ -127,22 +139,66 @@ export default function ReferralsPanel() {
             <p>No referrals yet. Share your referral link to start earning!</p>
           </div>
         ) : (
-          <div className="referral-list">
-            {referrals.map((referral) => (
-              <div key={referral.id} className="referral-item">
-                <div className="referral-item-info">
-                  <div className="referral-item-name">{referral.name}</div>
-                  <div className="referral-item-email">{referral.email}</div>
-                  <div className="referral-item-date">Joined: {new Date(referral.created_at).toLocaleDateString()}</div>
+          <>
+            <div className="referral-list">
+              {currentReferrals.map((referral) => (
+                <div key={referral.id} className="referral-item">
+                  <div className="referral-item-info">
+                    <div className="referral-item-name">{referral.name}</div>
+                    <div className="referral-item-email">{referral.email}</div>
+                    <div className="referral-item-date">Joined: {new Date(referral.created_at).toLocaleDateString()}</div>
+                  </div>
+                  <div className="referral-item-status">
+                    <span className={`status-badge status-${referral.payment_status.toLowerCase()}`}>
+                      {referral.payment_status}
+                    </span>
+                  </div>
                 </div>
-                <div className="referral-item-status">
-                  <span className={`status-badge status-${referral.payment_status.toLowerCase()}`}>
-                    {referral.payment_status}
-                  </span>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="pagination">
+                <button 
+                  className="pagination-btn"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft size={16} />
+                  Previous
+                </button>
+                
+                <div className="page-numbers">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      className={`page-btn ${currentPage === page ? 'active' : ''}`}
+                      onClick={() => handlePageChange(page)}
+                    >
+                      {page}
+                    </button>
+                  ))}
                 </div>
+                
+                <button 
+                  className="pagination-btn"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <ChevronRight size={16} />
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+
+            {/* Page Info */}
+            {referrals.length > 0 && (
+              <div className="page-info">
+                Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, referrals.length)} of {referrals.length} referrals
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

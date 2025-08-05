@@ -4,12 +4,13 @@ import UserProfilePanel from "../components/dashboard/UserProfilePanel";
 import MyOrdersPanel from "../components/dashboard/MyOrdersPanel";
 import RewardsPanel from "../components/dashboard/RewardsPanel";
 import ReferralsPanel from "../components/dashboard/ReferralsPanel";
+import PaymentsPanel from "../components/dashboard/PaymentsPanel";
+import PayoutsPanel from "../components/dashboard/PayoutsPanel";
 import WishlistPanel from "../components/dashboard/WishlistPanel";
 import WalletPanel from "../components/dashboard/WalletPanel";
 import SecurityPanel from "../components/dashboard/SecurityPanel";
 import AddressBookPanel from "../components/dashboard/AddressBookPanel";
 import SupportPanel from "../components/dashboard/SupportPanel";
-import SettingsPanel from "../components/dashboard/SettingsPanel";
 import InvoicesPanel from "../components/dashboard/InvoicesPanel";
 import SpecialOffersPanel from "../components/dashboard/SpecialOffersPanel";
 import { Package, DollarSign, Users, Star, Loader } from "react-feather";
@@ -146,11 +147,12 @@ const panelComponents: { [key: string]: React.ReactNode } = {
   orders: <MyOrdersPanel />,
   rewards: <RewardsPanel />,
   referrals: <ReferralsPanel />,
+  payments: <PaymentsPanel />,
+  payouts: <PayoutsPanel />,
   wishlist: <WishlistPanel />,
   wallet: <WalletPanel />,
   security: <SecurityPanel />,
   address: <AddressBookPanel />,
-  settings: <SettingsPanel />,
   invoices: <InvoicesPanel />,
   offers: <SpecialOffersPanel />,
   // Add placeholders for new panels

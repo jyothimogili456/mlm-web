@@ -1,0 +1,108 @@
+/* Mobile Action Buttons Fix */
+@media (max-width: 768px) {
+  .product-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 0.4rem !important;
+    padding: 0.6rem !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+  }
+
+  .action-btn {
+    display: flex !important;
+    width: 32px !important;
+    height: 32px !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    min-width: 32px !important;
+    min-height: 44px !important;
+  }
+
+  .cart-btn {
+    color: #7c3aed !important;
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .wishlist-btn {
+    color: #dc2626 !important;
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .wishlist-btn.active {
+    color: #ef4444 !important;
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .view-btn {
+    color: #3b82f6 !important;
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .action-btn svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .product-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 0.4rem !important;
+    padding: 0.6rem !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+  }
+
+  .action-btn {
+    display: flex !important;
+    width: 32px !important;
+    height: 32px !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    min-width: 32px !important;
+    min-height: 44px !important;
+  }
+
+  .cart-btn {
+    color: #7c3aed !important;
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .wishlist-btn {
+    color: #dc2626 !important;
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .wishlist-btn.active {
+    color: #ef4444 !important;
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .view-btn {
+    color: #3b82f6 !important;
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .action-btn svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+} 

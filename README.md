@@ -1,47 +1,124 @@
-# Getting Started with Create React App
+# MLM E-commerce Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern multi-level marketing e-commerce platform built with React and Node.js.
 
-## Available Scripts
+## 🚀 Quick Start
 
-In the project directory, you can run:
+### Prerequisites
+- Node.js (v14 or higher)
+- npm or yarn
 
-### `npm start`
+### Backend Server Setup
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+1. **Install backend dependencies:**
+   ```bash
+   npm install express cors multer bcrypt jsonwebtoken
+   ```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+2. **Start the backend server:**
+   ```bash
+   node server.js
+   ```
+   
+   The backend will run on `http://localhost:3000`
 
-### `npm test`
+### Frontend Setup
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. **Install frontend dependencies:**
+   ```bash
+   npm install
+   ```
 
-### `npm run build`
+2. **Start the React development server:**
+   ```bash
+   npm start
+   ```
+   
+   The frontend will run on `http://localhost:3001`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 📁 Project Structure
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```
+mlm-web-main/
+├── src/                    # React frontend source code
+│   ├── components/         # Reusable React components
+│   ├── pages/             # Page components
+│   ├── context/           # React context providers
+│   ├── api.ts             # API utility functions
+│   └── ...
+├── server.js              # Node.js backend server
+├── package.json           # Frontend dependencies
+└── README.md             # This file
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🔧 API Endpoints
 
-### `npm run eject`
+### Products
+- `GET /product/all` - Get all products (public)
+- `GET /product/:id` - Get specific product (public)
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Authentication
+- `POST /user/register` - User registration
+- `POST /user/login` - User login
+- `GET /user/profile` - Get user profile (authenticated)
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 🛠️ Features
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+- **Responsive Design** - Works on desktop, tablet, and mobile
+- **Product Catalog** - Browse and search products
+- **User Authentication** - Login/register functionality
+- **Shopping Cart** - Add/remove items from cart
+- **Wishlist** - Save favorite products
+- **User Dashboard** - Profile management and order history
+- **Referral System** - MLM referral tracking
+- **Rewards & Offers** - Reward redemption system
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## 🎨 UI Components
 
-## Learn More
+- Modern, clean design with gradient backgrounds
+- Responsive navigation with mobile sidebar
+- Product cards with action buttons
+- Custom popup modals for notifications
+- Loading states and error handling
+- Pagination for data tables
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 🔒 Security
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-"# mlm-frontned" 
+- JWT authentication for protected routes
+- Password hashing with bcrypt
+- CORS enabled for frontend-backend communication
+- Input validation and sanitization
+
+## 📱 Mobile Responsiveness
+
+- Collapsible sidebar for mobile devices
+- Responsive product grid
+- Touch-friendly buttons and interactions
+- Optimized layouts for different screen sizes
+
+## 🚀 Deployment
+
+### Backend
+1. Set up environment variables
+2. Deploy to your preferred hosting service (Heroku, AWS, etc.)
+3. Update the `BASE_URL` in `src/api.ts` to point to your deployed backend
+
+### Frontend
+1. Build the production version: `npm run build`
+2. Deploy the `build` folder to your hosting service
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+**Happy coding! 🎉** 

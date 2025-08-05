@@ -6,6 +6,7 @@ import { apiUtils, productApi } from '../api';
 import { ShoppingCart, Heart, Eye, Loader } from 'lucide-react';
 import PopupModal from '../components/PopupModal';
 import './Products.css';
+import './Products-mobile-fix.css';
 
 const mockCategories = ['All', 'Health', 'Wellness', 'Supplements', 'Electronics'];
 
@@ -72,7 +73,7 @@ export default function Products() {
         const mappedProducts = (result.data || []).map((product: any) => ({
           id: product.id,
           name: product.productName || product.name,
-          image: product.image || product.productImage || 'https://via.placeholder.com/300x300?text=Product',
+          image: product.image || product.photoUrl || product.productImage || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM2QjcyODAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Qcm9kdWN0PC90ZXh0Pgo8L3N2Zz4K',
           category: product.category || 'General',
           itemCode: product.itemCode || product.productCode || product.id.toString(),
           mrp: product.mrp || product.productMrp || product.productPrice * 1.2, // 20% markup as MRP
@@ -333,7 +334,7 @@ export default function Products() {
                   {loadingStates[product.id] === 'cart' ? (
                     <div className="loading-spinner"></div>
                   ) : (
-                    <ShoppingCart size={18} />
+                    <ShoppingCart size={16} />
                   )}
                 </button>
                 <button 
@@ -345,11 +346,11 @@ export default function Products() {
                   {loadingStates[product.id] === 'wishlist' ? (
                     <div className="loading-spinner"></div>
                   ) : (
-                    <Heart size={18} fill={isInWishlist(product.id) ? 'currentColor' : 'none'} />
+                    <Heart size={16} fill={isInWishlist(product.id) ? 'currentColor' : 'none'} />
                   )}
                 </button>
                 <Link to={`/products/${product.id}`} className="action-btn view-btn" title="View Details">
-                  <Eye size={18} />
+                  <Eye size={16} />
                 </Link>
               </div>
             </div>

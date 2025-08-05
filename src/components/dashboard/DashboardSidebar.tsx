@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Home, User, Box, Share2, Gift, Heart, MessageCircle, Settings, Menu, X } from "react-feather";
+import { Home, User, Box, Share2, Gift, Heart, MessageCircle, Settings, Menu, X, CreditCard, DollarSign } from "react-feather";
 import { useUser } from "../../context/UserContext";
 import { userApi } from "../../api";
 import "./DashboardSidebar.css";
@@ -10,9 +10,10 @@ const menuItems = [
   { label: "My Orders", key: "orders", icon: <Box size={20} /> },
   { label: "Referrals & Network", key: "referrals", icon: <Share2 size={20} /> },
   { label: "Rewards & Offers", key: "rewards", icon: <Gift size={20} /> },
+  { label: "Payments", key: "payments", icon: <CreditCard size={20} /> },
+  { label: "Payouts", key: "payouts", icon: <DollarSign size={20} /> },
   { label: "Wishlist", key: "wishlist", icon: <Heart size={20} /> },
   { label: "Support & Tickets", key: "support", icon: <MessageCircle size={20} /> },
-  { label: "Settings", key: "settings", icon: <Settings size={20} /> },
 ];
 
 interface DashboardSidebarProps {

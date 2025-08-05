@@ -338,32 +338,53 @@
 
 /* Product Actions */
 .product-actions {
-  display: flex;
-  gap: 0.5rem;
-  padding: 0.75rem;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 0.4rem;
+  padding: 0.6rem;
   background: #ffffff;
   border-top: 1px solid #f1f5f9;
   border-radius: 0 0 1rem 1rem;
   justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+  min-width: 120px;
+  width: 100%;
 }
 
 .action-btn {
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border: none;
-  border-radius: 50%;
-  font-size: 0.875rem;
+  width: 32px;
+  height: 32px;
+  border: none !important;
+  background: transparent !important;
+  font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   text-decoration: none;
   position: relative;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
+  min-width: 32px;
+  min-height: 44px; /* Better touch target for mobile */
+  /* Ensure only icons are visible */
+  color: inherit;
+  text-indent: -9999px;
+  white-space: nowrap;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.action-btn svg {
+  text-indent: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
 }
 
 .action-btn:disabled {
@@ -380,8 +401,8 @@
 }
 
 .action-btn:focus {
-  outline: 2px solid #7c3aed;
-  outline-offset: 2px;
+  outline: 1px solid #7c3aed;
+  outline-offset: 1px;
 }
 
 .action-btn:focus:not(:focus-visible) {
@@ -393,8 +414,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-top: 2px solid #ffffff;
   border-radius: 50%;
@@ -408,14 +429,15 @@
 
 /* Cart Button */
 .cart-btn {
-  background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
-  color: white;
+  color: #7c3aed !important;
+  display: flex !important;
+  background: transparent !important;
+  border: none !important;
 }
 
 .cart-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #6d28d9 0%, #8b5cf6 100%);
+  color: #6d28d9 !important;
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
 }
 
 .cart-btn:active:not(:disabled) {
@@ -424,30 +446,21 @@
 
 /* Wishlist Button */
 .wishlist-btn {
-  background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
   color: #dc2626;
-  border: 1px solid #fecaca;
 }
 
 .wishlist-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
   color: #b91c1c;
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
 }
 
 .wishlist-btn.active {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
-  border-color: #ef4444;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  color: #ef4444;
 }
 
 .wishlist-btn.active:hover:not(:disabled) {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  border-color: #dc2626;
+  color: #dc2626;
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
 }
 
 .wishlist-btn:active:not(:disabled) {
@@ -456,16 +469,13 @@
 
 /* View Details Button */
 .view-btn {
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-  color: #2563eb;
-  border: 1px solid #dbeafe;
+  color: #3b82f6;
+
 }
 
 .view-btn:hover {
-  background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);
   color: #1d4ed8;
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
 }
 
 .view-btn:active {
@@ -594,14 +604,57 @@
   .section-title {
     font-size: 1.3rem;
   }
+  
+  .product-actions {
+    flex-direction: row;
+    gap: 0.4rem;
+    padding: 0.6rem;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Keep same button size as desktop */
+  .action-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+  
+  .action-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .loading-spinner {
+    width: 14px;
+    height: 14px;
+  }
 }
 @media (max-width: 768px) {
   .product-actions {
-    flex-direction: column;
-    gap: 0.75rem;
+    flex-direction: row;
+    gap: 0.4rem;
+    padding: 0.6rem;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
   }
   
+  /* Keep same button size as desktop */
   .action-btn {
-    width: 100%;
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+  
+  .action-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .loading-spinner {
+    width: 14px;
+    height: 14px;
   }
 } 

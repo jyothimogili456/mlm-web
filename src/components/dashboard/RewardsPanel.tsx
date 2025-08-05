@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Gift, Award, Target, TrendingUp, X } from "react-feather";
-import { apiUtils, userApi } from "../../api";
+import { Gift, Award, Target, TrendingUp, X, AlertCircle, CheckCircle } from "react-feather";
+import { apiUtils, userApi, bankDetailsApi } from "../../api";
 import "./RewardsPanel.css";
 
 interface ReferralStats {
@@ -91,8 +91,12 @@ export default function RewardsPanel() {
     bankName: "",
     accountNumber: "",
     ifscCode: "",
-    accountHolder: ""
+    accountHolderName: ""
   });
+  const [bankFormErrors, setBankFormErrors] = useState<{[key: string]: string}>({});
+  const [existingBankDetails, setExistingBankDetails] = useState<any>(null);
+  const [isLoadingBankDetails, setIsLoadingBankDetails] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [referralPackages, setReferralPackages] = useState<ReferralPackage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -203,19 +207,116 @@ export default function RewardsPanel() {
     setClaimed((prev) => [...prev, id]);
   };
 
-  const handleRedeem = (id: number) => {
-    setShowBankModal(id);
-    // Reset form data when opening modal
-    setBankFormData({
-      bankName: "",
-      accountNumber: "",
-      ifscCode: "",
-      accountHolder: ""
-    });
+  const handleRedeem = async (id: number) => {
+    setBankFormErrors({});
+    setIsLoadingBankDetails(true);
+    
+    try {
+      const token = apiUtils.getToken();
+      const userData = apiUtils.getUserData();
+      
+      if (!token || !userData) {
+        throw new Error("Authentication required");
+      }
+
+      // Check if user has existing bank details
+      const checkResponse = await bankDetailsApi.checkBankDetails(userData.id, token);
+      
+      if (checkResponse.data.hasBankDetails) {
+        // User has bank details - directly mark as pending
+        setPendingRewards(prev => [...prev, id]);
+        // Show success message
+        setShowThankYouModal(true);
+      } else {
+        // User doesn't have bank details - show the form
+        setShowBankModal(id);
+        setExistingBankDetails(null);
+        setBankFormData({
+          bankName: "",
+          accountNumber: "",
+          ifscCode: "",
+          accountHolderName: ""
+        });
+      }
+    } catch (error) {
+      console.error("Error checking bank details:", error);
+      // If there's an error checking, show the form as fallback
+      setShowBankModal(id);
+      setBankFormErrors({ general: "Failed to check bank details. Please enter your details." });
+    } finally {
+      setIsLoadingBankDetails(false);
+    }
   };
 
   const closeModal = () => {
     setShowBankModal(null);
+  };
+
+  const handleEditBankDetails = async () => {
+    // Close the thank you modal first
+    setShowThankYouModal(false);
+    setBankFormErrors({});
+    setIsLoadingBankDetails(true);
+    
+    try {
+      const token = apiUtils.getToken();
+      const userData = apiUtils.getUserData();
+      
+      if (!token || !userData) {
+        throw new Error("Authentication required");
+      }
+
+      // Get existing bank details
+      const bankResponse = await bankDetailsApi.getBankDetails(userData.id, token);
+      setExistingBankDetails(bankResponse.data);
+      setBankFormData({
+        bankName: bankResponse.data.bankName,
+        accountNumber: bankResponse.data.accountNumber,
+        ifscCode: bankResponse.data.ifscCode,
+        accountHolderName: bankResponse.data.accountHolderName
+      });
+      
+      // Show modal for editing
+      setShowBankModal(-1); // Use -1 to indicate edit mode
+    } catch (error) {
+      console.error("Error loading bank details:", error);
+      setBankFormErrors({ general: "Failed to load bank details. Please try again." });
+    } finally {
+      setIsLoadingBankDetails(false);
+    }
+  };
+
+  const validateBankForm = () => {
+    const errors: {[key: string]: string} = {};
+    
+    if (!bankFormData.bankName.trim()) {
+      errors.bankName = "Bank name is required";
+    } else if (bankFormData.bankName.trim().length > 255) {
+      errors.bankName = "Bank name must be less than 255 characters";
+    }
+    
+    if (!bankFormData.accountNumber.trim()) {
+      errors.accountNumber = "Account number is required";
+    } else if (!/^\d{9,18}$/.test(bankFormData.accountNumber.trim())) {
+      errors.accountNumber = "Account number must be 9-18 digits only";
+    }
+    
+    if (!bankFormData.ifscCode.trim()) {
+      errors.ifscCode = "IFSC code is required";
+    } else if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(bankFormData.ifscCode.trim())) {
+      errors.ifscCode = "Invalid IFSC code format (e.g., SBIN0001234)";
+    }
+    
+    if (!bankFormData.accountHolderName.trim()) {
+      errors.accountHolderName = "Account holder name is required";
+    } else if (bankFormData.accountHolderName.trim().length < 2) {
+      errors.accountHolderName = "Account holder name must be at least 2 characters";
+    } else if (bankFormData.accountHolderName.trim().length > 255) {
+      errors.accountHolderName = "Account holder name must be less than 255 characters";
+    }
+    
+    setBankFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -223,16 +324,58 @@ export default function RewardsPanel() {
       ...prev,
       [field]: value
     }));
+    
+    // Clear error when user starts typing
+    if (bankFormErrors[field]) {
+      setBankFormErrors(prev => ({
+        ...prev,
+        [field]: ""
+      }));
+    }
   };
 
-  const handleSubmitBankDetails = () => {
-    // Here you would typically send the bank details to your backend
-    console.log("Bank details submitted:", bankFormData);
-    closeModal();
-    setShowThankYouModal(true);
-    // Add the current reward to pending list
-    if (showBankModal) {
-      setPendingRewards(prev => [...prev, showBankModal]);
+  const handleSubmitBankDetails = async () => {
+    if (!validateBankForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setBankFormErrors({});
+
+    try {
+      const token = apiUtils.getToken();
+      const userData = apiUtils.getUserData();
+      
+      if (!token || !userData) {
+        throw new Error("Authentication required");
+      }
+
+      // Validate bank details with API first
+      const validationResponse = await bankDetailsApi.validateBankDetails(bankFormData, token);
+      
+      if (!validationResponse.data.isValid) {
+        throw new Error("Invalid bank details. Please check your information.");
+      }
+
+      // Create or update bank details
+      const response = await bankDetailsApi.createOrUpdateBankDetails(userData.id, bankFormData, token);
+      
+      console.log("Bank details saved successfully:", response);
+      closeModal();
+      setShowThankYouModal(true);
+      
+      // Add the current reward to pending list
+      if (showBankModal) {
+        setPendingRewards(prev => [...prev, showBankModal]);
+      }
+      
+    } catch (error: any) {
+      console.error("Error submitting bank details:", error);
+      setBankFormErrors({ 
+        general: error.message || "Failed to save bank details. Please try again." 
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -404,67 +547,118 @@ export default function RewardsPanel() {
       </div>
 
       {/* Bank Details Modal */}
-      {showBankModal && selectedReward && (
+      {showBankModal && (selectedReward || showBankModal === -1) && (
         <div className="bank-modal-overlay" onClick={closeModal}>
           <div className="bank-modal" onClick={(e) => e.stopPropagation()}>
             <div className="bank-modal-header">
-              <h3>Enter Bank Details for Transfer</h3>
+              <h3>
+                {showBankModal === -1 ? "Edit Bank Details" : 
+                 existingBankDetails ? "Update Bank Details" : "Enter Bank Details"} for Transfer
+              </h3>
               <button className="bank-modal-close" onClick={closeModal}>
                 <X size={20} />
               </button>
             </div>
             <div className="bank-modal-content">
-              <div className="bank-details-grid">
-                <div className="bank-detail-item">
-                  <label className="bank-detail-label">Bank Name:</label>
-                  <input
-                    type="text"
-                    className="bank-detail-input"
-                    placeholder="Enter bank name"
-                    value={bankFormData.bankName}
-                    onChange={(e) => handleInputChange('bankName', e.target.value)}
-                  />
+              {isLoadingBankDetails ? (
+                <div className="bank-loading">
+                  <div className="loading-spinner"></div>
+                  <p>Loading bank details...</p>
                 </div>
-                <div className="bank-detail-item">
-                  <label className="bank-detail-label">Account Number:</label>
-                  <input
-                    type="text"
-                    className="bank-detail-input"
-                    placeholder="Enter account number"
-                    value={bankFormData.accountNumber}
-                    onChange={(e) => handleInputChange('accountNumber', e.target.value)}
-                  />
-                </div>
-                <div className="bank-detail-item">
-                  <label className="bank-detail-label">IFSC Code:</label>
-                  <input
-                    type="text"
-                    className="bank-detail-input"
-                    placeholder="Enter IFSC code"
-                    value={bankFormData.ifscCode}
-                    onChange={(e) => handleInputChange('ifscCode', e.target.value)}
-                  />
-                </div>
-                <div className="bank-detail-item">
-                  <label className="bank-detail-label">Account Holder:</label>
-                  <input
-                    type="text"
-                    className="bank-detail-input"
-                    placeholder="Enter account holder name"
-                    value={bankFormData.accountHolder}
-                    onChange={(e) => handleInputChange('accountHolder', e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="bank-modal-actions">
-                <button 
-                  className="bank-submit-btn"
-                  onClick={handleSubmitBankDetails}
-                  disabled={!bankFormData.bankName || !bankFormData.accountNumber || !bankFormData.ifscCode || !bankFormData.accountHolder}
-                >
-                  Submit Bank Details
-                </button>
-              </div>
+              ) : (
+                <>
+                  {existingBankDetails && (
+                    <div className="bank-info-banner">
+                      <CheckCircle size={16} />
+                      <span>You have existing bank details. You can update them below.</span>
+                    </div>
+                  )}
+                  
+                  {bankFormErrors.general && (
+                    <div className="bank-error-banner">
+                      <AlertCircle size={16} />
+                      <span>{bankFormErrors.general}</span>
+                    </div>
+                  )}
+                  
+                  <div className="bank-details-grid">
+                    <div className="bank-detail-item">
+                      <label className="bank-detail-label">Bank Name:</label>
+                      <input
+                        type="text"
+                        className={`bank-detail-input ${bankFormErrors.bankName ? 'error' : ''}`}
+                        placeholder="Enter bank name (e.g., State Bank of India)"
+                        value={bankFormData.bankName}
+                        onChange={(e) => handleInputChange('bankName', e.target.value)}
+                      />
+                      {bankFormErrors.bankName && (
+                        <span className="bank-error-text">{bankFormErrors.bankName}</span>
+                      )}
+                    </div>
+                    
+                    <div className="bank-detail-item">
+                      <label className="bank-detail-label">Account Number:</label>
+                      <input
+                        type="text"
+                        className={`bank-detail-input ${bankFormErrors.accountNumber ? 'error' : ''}`}
+                        placeholder="Enter account number (9-18 digits)"
+                        value={bankFormData.accountNumber}
+                        onChange={(e) => handleInputChange('accountNumber', e.target.value)}
+                        maxLength={18}
+                      />
+                      {bankFormErrors.accountNumber && (
+                        <span className="bank-error-text">{bankFormErrors.accountNumber}</span>
+                      )}
+                    </div>
+                    
+                    <div className="bank-detail-item">
+                      <label className="bank-detail-label">IFSC Code:</label>
+                      <input
+                        type="text"
+                        className={`bank-detail-input ${bankFormErrors.ifscCode ? 'error' : ''}`}
+                        placeholder="Enter IFSC code (e.g., SBIN0001234)"
+                        value={bankFormData.ifscCode}
+                        onChange={(e) => handleInputChange('ifscCode', e.target.value.toUpperCase())}
+                        maxLength={11}
+                      />
+                      {bankFormErrors.ifscCode && (
+                        <span className="bank-error-text">{bankFormErrors.ifscCode}</span>
+                      )}
+                    </div>
+                    
+                    <div className="bank-detail-item">
+                      <label className="bank-detail-label">Account Holder Name:</label>
+                      <input
+                        type="text"
+                        className={`bank-detail-input ${bankFormErrors.accountHolderName ? 'error' : ''}`}
+                        placeholder="Enter account holder name"
+                        value={bankFormData.accountHolderName}
+                        onChange={(e) => handleInputChange('accountHolderName', e.target.value)}
+                      />
+                      {bankFormErrors.accountHolderName && (
+                        <span className="bank-error-text">{bankFormErrors.accountHolderName}</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="bank-modal-actions">
+                    <button 
+                      className="bank-submit-btn"
+                      onClick={handleSubmitBankDetails}
+                      disabled={isSubmitting || !bankFormData.bankName || !bankFormData.accountNumber || !bankFormData.ifscCode || !bankFormData.accountHolderName}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <div className="loading-spinner-small"></div>
+                          {showBankModal === -1 || existingBankDetails ? "Updating..." : "Saving..."}
+                        </>
+                      ) : (
+                        showBankModal === -1 || existingBankDetails ? "Update Bank Details" : "Save Bank Details"
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -480,9 +674,14 @@ export default function RewardsPanel() {
               <p className="thank-you-message">
                 Money will be deposited to your account within 24 hours.
               </p>
-              <button className="thank-you-close-btn" onClick={closeThankYouModal}>
-                Close
-              </button>
+              <div className="thank-you-actions">
+                <button className="edit-bank-details-btn" onClick={handleEditBankDetails}>
+                  Edit Bank Details
+                </button>
+                <button className="thank-you-close-btn" onClick={closeThankYouModal}>
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
