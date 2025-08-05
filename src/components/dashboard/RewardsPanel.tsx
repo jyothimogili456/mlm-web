@@ -11,6 +11,25 @@ interface ReferralStats {
   monthNextGoal?: string;
 }
 
+interface UserData {
+  id: number;
+  name: string;
+  email: string;
+  mobileNumber: string;
+  referral_code: string;
+  referralCount: number;
+  wallet_balance?: number;
+  payment_status: string;
+  created_at: string;
+  address?: string;
+  gender?: string;
+  reward?: string;
+  referred_by_code?: string;
+  status?: string;
+  updated_at?: string;
+  token?: string;
+}
+
 interface ReferralPackage {
   id: number;
   title: string;
@@ -98,23 +117,30 @@ export default function RewardsPanel() {
   const [isLoadingBankDetails, setIsLoadingBankDetails] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [referralPackages, setReferralPackages] = useState<ReferralPackage[]>([]);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch referral stats from API
+  // Fetch referral stats and user data from API
   useEffect(() => {
-    const fetchReferralStats = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const userData = apiUtils.getUserData();
+        const currentUserData = apiUtils.getUserData();
         const token = apiUtils.getToken();
         
-        if (!userData || !token) {
+        if (!currentUserData || !token) {
           setError('Please login to view referral stats');
           return;
         }
 
-        const result = await userApi.getReferralStats(userData.referral_code, token);
+        // Fetch user data to get wallet balance
+        const userResult = await userApi.getUserById(currentUserData.id, token);
+        console.log('User Data API Response:', userResult);
+        setUserData(userResult.data);
+
+        // Fetch referral stats
+        const result = await userApi.getReferralStats(currentUserData.referral_code, token);
         console.log('Referral Stats API Response:', result);
         
         // Transform API data to match component structure
@@ -156,14 +182,14 @@ export default function RewardsPanel() {
         
         setReferralPackages(packages);
       } catch (error) {
-        console.error('Error fetching referral stats:', error);
-        setError('Failed to load referral stats');
+        console.error('Error fetching data:', error);
+        setError('Failed to load data');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchReferralStats();
+    fetchData();
   }, []);
 
   // Prevent body scrolling when modal is open
@@ -516,17 +542,25 @@ export default function RewardsPanel() {
             <tr>
               <th>Date</th>
               <th>Source</th>
-              <th>Referrals Count</th>
+              <th>Wallet Balance</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody>
             {rewardHistory.map((reward, i) => (
               <tr key={i}>
-                  <td>{reward.date}</td>
-                  <td>{reward.source}</td>
-                <td>{reward.referralsCount}</td>
-                  <td>
+                <td>{reward.date}</td>
+                <td>{reward.source}</td>
+                <td>
+                  {userData ? (
+                    <span className="wallet-balance">
+                      ₹{userData.wallet_balance?.toLocaleString() || '0'}
+                    </span>
+                  ) : (
+                    <span className="wallet-balance">₹0</span>
+                  )}
+                </td>
+                <td>
                   {pendingRewards.includes(reward.id) ? (
                     <button className="rewards-pending-btn" disabled>
                       Pending
@@ -539,8 +573,8 @@ export default function RewardsPanel() {
                       Redeem Now
                     </button>
                   )}
-                  </td>
-                </tr>
+                </td>
+              </tr>
             ))}
           </tbody>
         </table>
