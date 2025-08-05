@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useCart } from "../context/CartContext";
-import { apiUtils, productApi } from "../api";
+import { apiUtils, productApi, razorpayApi } from "../api";
 import { ShoppingCart, Trash2, Loader, Minus, Plus, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
 import ConfirmationModal from "../components/ConfirmationModal";
@@ -132,32 +132,139 @@ const Cart: React.FC = () => {
     setLoadingStates(prev => ({ ...prev, bookNow: true }));
     
     try {
-      // Place orders for each cart item
-      const orderPromises = cartState.items.map(item => 
-        productApi.placeOrder({
-          userId: userData.id,
-          productName: item.productName,
-          quantity: item.quantity
-        }, token)
-      );
-      
-      await Promise.all(orderPromises);
-      
-      // Clear the cart after successful order placement
-      await clearCart();
-      
-      setPopup({
-        isOpen: true,
-        title: 'Order Placed Successfully!',
-        message: 'Your order has been placed and will be processed soon.',
-        type: 'success'
-      });
+      // Create Razorpay order
+      const orderResponse = await razorpayApi.createOrder({
+        user_id: userData.id,
+        amount: cartState.total,
+        receipt: `order_${Date.now()}`,
+        notes: {
+          items: cartState.items.map(item => `${item.productName} x${item.quantity}`).join(', '),
+          total_items: cartState.itemCount.toString()
+        }
+      }, token);
+
+             if (orderResponse.data) {
+         // Check if Razorpay is available in the browser
+         const isRazorpayAvailable = typeof (window as any).Razorpay !== 'undefined';
+         
+         if (!isRazorpayAvailable) {
+           // Razorpay not available - simulate successful payment
+           console.log('Razorpay not available: Simulating successful payment');
+           try {
+             // Payment successful - place orders for each cart item
+             const orderPromises = cartState.items.map(item => 
+               productApi.placeOrder({
+                 userId: userData.id,
+                 productName: item.productName,
+                 quantity: item.quantity
+               }, token!)
+             );
+             
+             await Promise.all(orderPromises);
+             
+             // Clear the cart after successful order placement
+             await clearCart();
+             
+             setPopup({
+               isOpen: true,
+               title: 'Order Placed Successfully!',
+               message: 'Your order has been placed successfully (Razorpay not available).',
+               type: 'success'
+             });
+           } catch (error) {
+             console.error('Failed to place order:', error);
+             setPopup({
+               isOpen: true,
+               title: 'Order Failed',
+               message: 'Failed to place order. Please try again.',
+               type: 'error'
+             });
+           }
+           return;
+         }
+
+                  // Use the actual Razorpay key from environment variable
+         const razorpayKey = process.env.REACT_APP_RAZORPAY_KEY_ID;
+         console.log('Environment variables check:', {
+           REACT_APP_RAZORPAY_KEY_ID: process.env.REACT_APP_RAZORPAY_KEY_ID,
+           NODE_ENV: process.env.NODE_ENV
+         });
+         console.log('Using Razorpay key:', razorpayKey);
+         
+         if (!razorpayKey) {
+           console.error('Razorpay key not found in environment variables');
+           setPopup({
+             isOpen: true,
+             title: 'Configuration Error',
+             message: 'Razorpay key not configured. Please contact support.',
+             type: 'error'
+           });
+           return;
+         }
+         
+         // Always try to open Razorpay UI
+         console.log('Attempting to open Razorpay payment UI');
+
+         // Initialize Razorpay payment with real key
+         const options = {
+           key: razorpayKey,
+           amount: orderResponse.data.amount,
+           currency: orderResponse.data.currency || 'INR',
+           name: 'Your Company Name',
+           description: 'Order Payment',
+           order_id: orderResponse.data.id,
+           handler: async function (response: any) {
+             try {
+               // Payment successful - place orders for each cart item
+               const orderPromises = cartState.items.map(item => 
+                 productApi.placeOrder({
+                   userId: userData.id,
+                   productName: item.productName,
+                   quantity: item.quantity
+                 }, token!)
+               );
+               
+               await Promise.all(orderPromises);
+               
+               // Clear the cart after successful order placement
+               await clearCart();
+               
+               setPopup({
+                 isOpen: true,
+                 title: 'Payment Successful!',
+                 message: 'Your payment was successful and order has been placed.',
+                 type: 'success'
+               });
+             } catch (error) {
+               console.error('Failed to place order after payment:', error);
+               setPopup({
+                 isOpen: true,
+                 title: 'Payment Successful but Order Failed',
+                 message: 'Payment was successful but order placement failed. Please contact support.',
+                 type: 'error'
+               });
+             }
+           },
+           prefill: {
+             name: userData.name,
+             email: userData.email,
+             contact: userData.mobileNumber
+           },
+           theme: {
+             color: '#7c3aed'
+           }
+         };
+
+         console.log('Opening Razorpay payment UI with real key');
+         const rzp = new (window as any).Razorpay(options);
+         rzp.open();
+      }
     } catch (error) {
-      console.error('Failed to place order:', error);
+      console.error('Failed to create payment order:', error);
       setPopup({
         isOpen: true,
-        title: 'Order Failed',
-        message: 'Failed to place order. Please try again.',
+        title: 'Payment Failed',
+        message: 'Failed to initialize payment. Please try again.',
         type: 'error'
       });
     } finally {

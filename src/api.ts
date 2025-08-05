@@ -354,6 +354,13 @@ export const wishlistApi = {
   }
 };
 
+// Razorpay API functions
+export const razorpayApi = {
+  createOrder: async (orderData: { user_id: number; amount: number; receipt?: string; notes?: Record<string, string> }, token: string): Promise<ApiResponse<any>> => {
+    return apiPost<ApiResponse<any>>('/api/payments/create-order', orderData, token);
+  }
+};
+
 // Utility functions
 export const apiUtils = {
   getToken: (): string | null => {
