@@ -3,7 +3,7 @@ import HeroSection from "../components/HeroSection";
 import { HowItWorks } from "../components/HowItWorks";
 import FeaturedProducts from "../components/FeaturedProducts";
 import { RewardsPreview } from "../components/RewardsPreview";
-import { FinalCTA } from "../components/FinalCTA";
+// import { FinalCTA } from "../components/FinalCTA";
 import { TestimonialSlider } from "../components/TestimonialSlider";
 
 
@@ -23,9 +23,9 @@ const Home: React.FC = () => {
       <div className="testimonial-section">
         <TestimonialSlider />
       </div>
-      <div className="final-cta-section">
+      {/* <div className="final-cta-section">
         <FinalCTA />
-      </div>
+      </div> */}
     </main>
   );
 };

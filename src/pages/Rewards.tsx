@@ -9,9 +9,9 @@ const rewardTypes = [
 ];
 
 const milestones = [
-  { label: "Refer 1 friend", reward: "₹100" },
-  { label: "Refer 3 friends", reward: "₹500" },
-  { label: "Refer 10 friends", reward: "₹2,000" },
+  { label: "Refer 1 friend", reward: "₹250" },
+  { label: "Refer 1000 friends", reward: "Iphone" },
+  { label: "Refer 10000 friends", reward: "Royal Enfield" },
   { label: "Achieve Gold Rank", reward: "Special Gift" },
 ];
 

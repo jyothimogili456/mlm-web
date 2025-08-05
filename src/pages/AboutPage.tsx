@@ -14,7 +14,7 @@ export default function AboutPage() {
       {/* Section 1: Our Mission */}
       <section className="about-row">
         <div className="about-img about-img-left">
-          <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80" alt="Grow Better" />
+          <img src={require("../assets/mission.jpeg")} alt="Our Mission" />
         </div>
         <div className="about-content about-content-right">
           <div className="about-section-heading">
@@ -35,7 +35,7 @@ export default function AboutPage() {
           </p>
         </div>
         <div className="about-img about-img-right">
-          <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=600&q=80" alt="Our Story" />
+          <img src={require("../assets/story.jpeg")} alt="Our Story" />
         </div>
       </section>
 

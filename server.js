@@ -266,9 +266,352 @@ app.get('/product/:id', (req, res) => {
   });
 });
 
+// Mock data for cart and wishlist
+let carts = new Map(); // userId -> cart items
+let wishlists = new Map(); // userId -> wishlist items
+
+/**
+ * @swagger
+ * /cart/add/{userId}:
+ *   post:
+ *     summary: Add item to cart
+ *     description: Add a product to user's cart
+ *     tags: [Cart]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               productId:
+ *                 type: integer
+ *                 description: Product ID to add
+ *               quantity:
+ *                 type: integer
+ *                 description: Quantity to add
+ *                 default: 1
+ *     responses:
+ *       200:
+ *         description: Item added to cart successfully
+ *       400:
+ *         description: Invalid request
+ *       404:
+ *         description: Product not found
+ */
+app.post('/cart/add/:userId', (req, res) => {
+  const userId = parseInt(req.params.userId);
+  const { productId, quantity = 1 } = req.body;
+  
+  if (!productId || !quantity) {
+    return res.status(400).json({
+      statusCode: 400,
+      message: "Product ID and quantity are required",
+      data: null
+    });
+  }
+  
+  const product = products.find(p => p.id === productId);
+  if (!product) {
+    return res.status(404).json({
+      statusCode: 404,
+      message: "Product not found",
+      data: null
+    });
+  }
+  
+  if (!carts.has(userId)) {
+    carts.set(userId, []);
+  }
+  
+  const userCart = carts.get(userId);
+  const existingItem = userCart.find(item => item.productId === productId);
+  
+  if (existingItem) {
+    existingItem.quantity += quantity;
+  } else {
+    userCart.push({
+      id: Date.now(),
+      productId,
+      quantity,
+      product: product
+    });
+  }
+  
+  res.json({
+    statusCode: 200,
+    message: "Item added to cart successfully",
+    data: userCart
+  });
+});
+
+/**
+ * @swagger
+ * /cart/{userId}:
+ *   get:
+ *     summary: Get user's cart
+ *     description: Retrieve all items in user's cart
+ *     tags: [Cart]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: Cart retrieved successfully
+ */
+app.get('/cart/:userId', (req, res) => {
+  const userId = parseInt(req.params.userId);
+  const userCart = carts.get(userId) || [];
+  
+  res.json({
+    statusCode: 200,
+    message: "Cart retrieved successfully",
+    data: userCart
+  });
+});
+
+/**
+ * @swagger
+ * /cart/remove/{userId}/{itemId}:
+ *   delete:
+ *     summary: Remove item from cart
+ *     description: Remove a specific item from user's cart
+ *     tags: [Cart]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: User ID
+ *       - in: path
+ *         name: itemId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Cart item ID
+ *     responses:
+ *       200:
+ *         description: Item removed from cart successfully
+ *       404:
+ *         description: Item not found in cart
+ */
+app.delete('/cart/remove/:userId/:itemId', (req, res) => {
+  const userId = parseInt(req.params.userId);
+  const itemId = parseInt(req.params.itemId);
+  
+  if (!carts.has(userId)) {
+    return res.status(404).json({
+      statusCode: 404,
+      message: "Cart not found",
+      data: null
+    });
+  }
+  
+  const userCart = carts.get(userId);
+  const itemIndex = userCart.findIndex(item => item.id === itemId);
+  
+  if (itemIndex === -1) {
+    return res.status(404).json({
+      statusCode: 404,
+      message: "Item not found in cart",
+      data: null
+    });
+  }
+  
+  userCart.splice(itemIndex, 1);
+  
+  res.json({
+    statusCode: 200,
+    message: "Item removed from cart successfully",
+    data: userCart
+  });
+});
+
+/**
+ * @swagger
+ * /wishlist/add/{userId}:
+ *   post:
+ *     summary: Add item to wishlist
+ *     description: Add a product to user's wishlist
+ *     tags: [Wishlist]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               productId:
+ *                 type: integer
+ *                 description: Product ID to add
+ *     responses:
+ *       200:
+ *         description: Item added to wishlist successfully
+ *       400:
+ *         description: Invalid request
+ *       404:
+ *         description: Product not found
+ */
+app.post('/wishlist/add/:userId', (req, res) => {
+  const userId = parseInt(req.params.userId);
+  const { productId } = req.body;
+  
+  if (!productId) {
+    return res.status(400).json({
+      statusCode: 400,
+      message: "Product ID is required",
+      data: null
+    });
+  }
+  
+  const product = products.find(p => p.id === productId);
+  if (!product) {
+    return res.status(404).json({
+      statusCode: 404,
+      message: "Product not found",
+      data: null
+    });
+  }
+  
+  if (!wishlists.has(userId)) {
+    wishlists.set(userId, []);
+  }
+  
+  const userWishlist = wishlists.get(userId);
+  const existingItem = userWishlist.find(item => item.productId === productId);
+  
+  if (existingItem) {
+    return res.status(400).json({
+      statusCode: 400,
+      message: "Item already in wishlist",
+      data: null
+    });
+  }
+  
+  userWishlist.push({
+    id: Date.now(),
+    productId,
+    product: product
+  });
+  
+  res.json({
+    statusCode: 200,
+    message: "Item added to wishlist successfully",
+    data: userWishlist
+  });
+});
+
+/**
+ * @swagger
+ * /wishlist/{userId}:
+ *   get:
+ *     summary: Get user's wishlist
+ *     description: Retrieve all items in user's wishlist
+ *     tags: [Wishlist]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: Wishlist retrieved successfully
+ */
+app.get('/wishlist/:userId', (req, res) => {
+  const userId = parseInt(req.params.userId);
+  const userWishlist = wishlists.get(userId) || [];
+  
+  res.json({
+    statusCode: 200,
+    message: "Wishlist retrieved successfully",
+    data: userWishlist
+  });
+});
+
+/**
+ * @swagger
+ * /wishlist/remove/{userId}/{itemId}:
+ *   delete:
+ *     summary: Remove item from wishlist
+ *     description: Remove a specific item from user's wishlist
+ *     tags: [Wishlist]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: User ID
+ *       - in: path
+ *         name: itemId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Wishlist item ID
+ *     responses:
+ *       200:
+ *         description: Item removed from wishlist successfully
+ *       404:
+ *         description: Item not found in wishlist
+ */
+app.delete('/wishlist/remove/:userId/:itemId', (req, res) => {
+  const userId = parseInt(req.params.userId);
+  const itemId = parseInt(req.params.itemId);
+  
+  if (!wishlists.has(userId)) {
+    return res.status(404).json({
+      statusCode: 404,
+      message: "Wishlist not found",
+      data: null
+    });
+  }
+  
+  const userWishlist = wishlists.get(userId);
+  const itemIndex = userWishlist.findIndex(item => item.id === itemId);
+  
+  if (itemIndex === -1) {
+    return res.status(404).json({
+      statusCode: 404,
+      message: "Item not found in wishlist",
+      data: null
+    });
+  }
+  
+  userWishlist.splice(itemIndex, 1);
+  
+  res.json({
+    statusCode: 200,
+    message: "Item removed from wishlist successfully",
+    data: userWishlist
+  });
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📦 Products API: http://localhost:${PORT}/product/all`);
+  console.log(`🛒 Cart API: http://localhost:${PORT}/cart/{userId}`);
+  console.log(`❤️ Wishlist API: http://localhost:${PORT}/wishlist/{userId}`);
   console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
 }); 

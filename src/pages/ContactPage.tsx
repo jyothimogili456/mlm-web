@@ -3,9 +3,9 @@ import { MapPin, Phone, Mail } from "lucide-react";
 import "./FaqContact.css";
 
 const contactInfo = {
-  address: "123 GiftsHero Avenue, Mumbai, India",
-  phone: "+91 98765 43210",
-  email: "support@giftshero.com",
+  address: "Madhapur,Hyderabad,Telangana,India",
+  phone: "+91 9059614343",
+  email: "camelq.in",
 };
 
 export default function ContactPage() {
