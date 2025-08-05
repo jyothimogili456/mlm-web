@@ -125,10 +125,10 @@ export default function ReferralsPanel() {
             <div className="referral-stat-value">₹{totalEarnings}</div>
             <div className="referral-stat-label">Total Earnings</div>
           </div>
-          <div className="referral-stat-item">
+          {/* <div className="referral-stat-item">
             <div className="referral-stat-value">{referrals.filter(r => r.payment_status === 'PAID').length}</div>
             <div className="referral-stat-label">Paid Referrals</div>
-          </div>
+          </div> */}
         </div>
       </div>
 

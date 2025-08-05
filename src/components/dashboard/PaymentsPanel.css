@@ -9,6 +9,12 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.payments-dashboard-panel::-webkit-scrollbar {
+  display: none;
 }
 
 /* Header Styles */

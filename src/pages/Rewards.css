@@ -146,6 +146,12 @@
   padding-bottom: 1rem;
   white-space: nowrap;
   margin-top: 5rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.milestone-tracker::-webkit-scrollbar {
+  display: none;
 }
 .milestone-step {
   display: flex;

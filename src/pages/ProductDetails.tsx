@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { apiUtils } from "../api";
-import { ShoppingCart, Heart, Loader, Eye } from "lucide-react";
+import { ShoppingCart, Heart, Loader } from "lucide-react";
 import PopupModal from "../components/PopupModal";
 import "./ProductDetails.css";
 

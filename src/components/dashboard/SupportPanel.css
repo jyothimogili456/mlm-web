@@ -19,6 +19,12 @@
   padding: 1.5rem 1.2rem;
   margin-bottom: 2rem;
   overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.support-table-section::-webkit-scrollbar {
+  display: none;
 }
 .support-table {
   width: 100%;

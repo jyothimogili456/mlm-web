@@ -134,6 +134,12 @@
     flex-wrap: nowrap;
     overflow-x: auto;
     padding-bottom: 0.5rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .rewards-list::-webkit-scrollbar {
+    display: none;
   }
   .reward-card {
     min-width: 80vw;

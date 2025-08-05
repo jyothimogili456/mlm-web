@@ -32,31 +32,7 @@ const AuthCard: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(0); // 0 = registration, 1 = products, 2 = refer, 3 = milestones
 
-  // Password strength checker
-  const getPasswordStrength = (password: string) => {
-    if (!password) return { strength: 0, message: '', color: '#e5e7eb' };
-    
-    let score = 0;
-    const checks = {
-      length: password.length >= 8,
-      lowercase: /[a-z]/.test(password),
-      uppercase: /[A-Z]/.test(password),
-      number: /\d/.test(password),
-      special: /[@$!%*?&]/.test(password)
-    };
-    
-    score += checks.length ? 1 : 0;
-    score += checks.lowercase ? 1 : 0;
-    score += checks.uppercase ? 1 : 0;
-    score += checks.number ? 1 : 0;
-    score += checks.special ? 1 : 0;
-    
-    if (score <= 1) return { strength: score, message: 'Very Weak', color: '#ef4444' };
-    if (score <= 2) return { strength: score, message: 'Weak', color: '#f97316' };
-    if (score <= 3) return { strength: score, message: 'Fair', color: '#eab308' };
-    if (score <= 4) return { strength: score, message: 'Good', color: '#22c55e' };
-    return { strength: score, message: 'Strong', color: '#16a34a' };
-  };
+
 
   // Validation
   const validateRegister = () => {

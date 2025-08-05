@@ -5,7 +5,7 @@ import FeaturedProducts from "../components/FeaturedProducts";
 import { RewardsPreview } from "../components/RewardsPreview";
 import { FinalCTA } from "../components/FinalCTA";
 import { TestimonialSlider } from "../components/TestimonialSlider";
-import { ReferralCountdown } from "../components/ReferralCountdown";
+
 
 const Home: React.FC = () => {
   return (

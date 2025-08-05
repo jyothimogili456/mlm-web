@@ -144,20 +144,112 @@
   gap: 1.1rem;
   margin-top: 0.5rem;
 }
-.footer-social-icon svg {
-  width: 28px;
-  height: 28px;
-  transition: stroke 0.2s, transform 0.18s, background 0.2s;
+
+/* Enhanced Social Media Icons */
+.footer-social-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: #f3f0fa;
-  box-shadow: 0 1px 4px 0 rgba(124,58,237,0.04);
-  padding: 4px;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
 }
-.footer-social-icon:focus svg, .footer-social-icon:hover svg {
-  stroke: #fff;
-  background: #1660b1;
-  transform: scale(1.12);
-  outline: none;
+
+.social-icon-bg {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+}
+
+.footer-social-icon svg {
+  color: white;
+  transition: all 0.3s ease;
+  z-index: 2;
+  position: relative;
+  width: 16px;
+  height: 16px;
+}
+
+/* Instagram Icon */
+.instagram-icon .social-icon-bg {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+.instagram-icon:hover .social-icon-bg {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 8px 25px rgba(220, 39, 67, 0.4);
+}
+
+/* Facebook Icon */
+.facebook-icon .social-icon-bg {
+  background: linear-gradient(135deg, #1877f2 0%, #0d6efd 100%);
+}
+
+.facebook-icon:hover .social-icon-bg {
+  transform: scale(1.1) rotate(-5deg);
+  box-shadow: 0 8px 25px rgba(24, 119, 242, 0.4);
+}
+
+/* Twitter/X Icon */
+.twitter-icon .social-icon-bg {
+  background: linear-gradient(135deg, #1da1f2 0%, #0ea5e9 100%);
+}
+
+.twitter-icon:hover .social-icon-bg {
+  transform: scale(1.1) rotate(3deg);
+  box-shadow: 0 8px 25px rgba(29, 161, 242, 0.4);
+}
+
+/* YouTube Icon */
+.youtube-icon .social-icon-bg {
+  background: linear-gradient(135deg, #ff0000 0%, #dc2626 100%);
+}
+
+.youtube-icon:hover .social-icon-bg {
+  transform: scale(1.1) rotate(-3deg);
+  box-shadow: 0 8px 25px rgba(255, 0, 0, 0.4);
+}
+
+/* Hover Effects */
+.footer-social-icon:hover {
+  transform: translateY(-3px);
+}
+
+.footer-social-icon:hover svg {
+  transform: scale(1.1);
+}
+
+/* Active/Pressed State */
+.footer-social-icon:active {
+  transform: translateY(-1px) scale(0.95);
+}
+
+/* Pulse Animation */
+@keyframes socialPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(124, 58, 237, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(124, 58, 237, 0);
+  }
+}
+
+.footer-social-icon {
+  animation: socialPulse 2s infinite;
 }
 .footer-bottom {
   margin-top: 1.5rem;
@@ -241,10 +333,13 @@
   .footer-social-row {
     gap: 0.7rem;
   }
+  .footer-social-icon {
+    width: 32px;
+    height: 32px;
+  }
   .footer-social-icon svg {
-    width: 22px;
-    height: 22px;
-    padding: 2px;
+    width: 14px;
+    height: 14px;
   }
 }
 @media (max-width: 400px) {
@@ -257,5 +352,16 @@
   }
   .footer-logo {
     height: 28px;
+  }
+  .footer-social-icon {
+    width: 28px;
+    height: 28px;
+  }
+  .footer-social-icon svg {
+    width: 12px;
+    height: 12px;
+  }
+  .footer-social-row {
+    gap: 0.6rem;
   }
 } 

@@ -391,6 +391,12 @@
   flex-direction: column;
   gap: 2rem;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.mobile-menu-content::-webkit-scrollbar {
+  display: none;
 }
 
 .mobile-menu-title {

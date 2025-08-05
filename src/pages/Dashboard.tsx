@@ -13,7 +13,7 @@ import AddressBookPanel from "../components/dashboard/AddressBookPanel";
 import SupportPanel from "../components/dashboard/SupportPanel";
 import InvoicesPanel from "../components/dashboard/InvoicesPanel";
 import SpecialOffersPanel from "../components/dashboard/SpecialOffersPanel";
-import { Package, DollarSign, Users, Star, Loader } from "react-feather";
+import { DollarSign, Users, Loader } from "react-feather";
 import { apiUtils, userApi } from "../api";
 import "./Dashboard.css";
 
@@ -65,14 +65,14 @@ function DashboardHome() {
   return (
     <div className="gh-dashboard-home">
       <div className="gh-dashboard-welcome">
-        Welcome back, <b>User</b>! Here’s your GiftsHero dashboard overview.
+        Welcome back, <b>User</b>! 
       </div>
       <div className="gh-dashboard-summary-grid">
-        <div className="gh-summary-card gh-animate">
+        {/* <div className="gh-summary-card gh-animate">
           <div className="gh-summary-icon"><Package size={28} /></div>
           <div className="gh-summary-value">24</div>
           <div className="gh-summary-label">Orders</div>
-        </div>
+        </div> */}
         <div className="gh-summary-card gh-animate">
           <div className="gh-summary-icon"><DollarSign size={28} /></div>
           <div className="gh-summary-value">
@@ -93,11 +93,11 @@ function DashboardHome() {
           <div className="gh-summary-value">₹800</div>
           <div className="gh-summary-label">Referral Earnings</div>
         </div>
-        <div className="gh-summary-card gh-animate">
+        {/* <div className="gh-summary-card gh-animate">
           <div className="gh-summary-icon"><Star size={28} /></div>
           <div className="gh-summary-value">Silver</div>
           <div className="gh-summary-label">Rank</div>
-        </div>
+        </div> */}
       </div>
       <div className="gh-dashboard-main-widgets">
         <div className="gh-recent-orders-card gh-animate">

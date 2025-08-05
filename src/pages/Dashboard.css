@@ -84,6 +84,12 @@
   min-height: 80vh;
   position: relative;
   overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.dashboard-content::-webkit-scrollbar {
+  display: none;
 }
 
 /* Panel Animation */
