@@ -17,6 +17,7 @@ interface User {
   gender?: string;
   referral_code: string;
   referralCount: number;
+  wallet_balance?: number;
   reward?: string;
   referred_by_code?: string;
   payment_status: 'PENDING' | 'PAID';
@@ -70,6 +71,8 @@ interface BankDetails {
   ifscCode: string;
   bankName: string;
   accountHolderName: string;
+  redeemAmount: number;
+  redeemStatus: 'processing' | 'deposited';
   created_at: string;
   updated_at: string;
   user: User;
@@ -80,6 +83,8 @@ interface BankDetailsRequest {
   accountNumber: string;
   ifscCode: string;
   accountHolderName: string;
+  redeemAmount?: number;
+  redeemStatus?: 'processing' | 'deposited';
 }
 
 interface BankDetailsValidationResponse {
@@ -270,6 +275,26 @@ export const bankDetailsApi = {
   // Validate bank details without saving
   validateBankDetails: async (bankDetails: BankDetailsRequest, token: string): Promise<ApiResponse<BankDetailsValidationResponse>> => {
     return apiPost<ApiResponse<BankDetailsValidationResponse>>('/api/bankDetails/validateBankDetails', bankDetails, token);
+  },
+
+  // Get all bank details with users and status
+  getAllBankDetailsWithUsers: async (token: string): Promise<ApiResponse<BankDetails[]>> => {
+    return apiGet<ApiResponse<BankDetails[]>>('/api/bankDetails/getAllBankDetailsWithUsers', token);
+  },
+
+  // Update redeem status for a user
+  updateRedeemStatus: async (userId: number, status: 'processing' | 'deposited', token: string): Promise<ApiResponse<BankDetails>> => {
+    return apiPut<ApiResponse<BankDetails>>(`/api/bankDetails/updateRedeemStatus/${userId}`, { status }, token);
+  },
+
+  // Update redeem amount for a user
+  updateRedeemAmount: async (userId: number, redeemAmount: number, token: string): Promise<ApiResponse<BankDetails>> => {
+    return apiPut<ApiResponse<BankDetails>>(`/api/bankDetails/updateRedeemAmount/${userId}`, { redeemAmount }, token);
+  },
+
+  // Get redeem history for a user
+  getRedeemHistory: async (userId: number, token: string): Promise<ApiResponse<any[]>> => {
+    return apiGet<ApiResponse<any[]>>(`/api/bankDetails/redeemHistory/${userId}`, token);
   }
 };
 
