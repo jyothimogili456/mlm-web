@@ -92,6 +92,83 @@ interface BankDetailsValidationResponse {
   errors: any[];
 }
 
+interface Payout {
+  id: number;
+  userId: number;
+  payoutId: string;
+  amount: number;
+  method: string;
+  status: 'pending' | 'completed' | 'failed' | 'processing';
+  description: string;
+  bankDetails: string;
+  transactionId?: string;
+  date: string;
+  created_at: string;
+  updated_at: string;
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+    mobileNumber: string;
+    referral_code: string;
+  };
+}
+
+interface Payment {
+  id: number;
+  userId: number;
+  orderId: string;
+  paymentId?: string;
+  amount: string;
+  currency: string;
+  status: 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED';
+  receipt?: string;
+  createdAt: string;
+  updatedAt: string;
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+    mobileNumber: string;
+    referral_code: string;
+  };
+}
+
+interface PaymentStats {
+  totalPayments: number;
+  totalAmount: number;
+  pendingAmount: number;
+  paidAmount: number;
+  failedAmount: number;
+  refundedAmount: number;
+}
+
+interface PayoutStats {
+  totalPayouts: number;
+  totalAmount: number;
+  pendingAmount: number;
+  completedAmount: number;
+  processingAmount: number;
+  failedAmount: number;
+}
+
+interface CreatePayoutRequest {
+  userId: number;
+  payoutId: string;
+  amount: number;
+  method: string;
+  status?: 'pending' | 'completed' | 'failed' | 'processing';
+  description: string;
+  bankDetails: string;
+  transactionId?: string;
+}
+
+interface UpdatePayoutRequest {
+  status?: 'pending' | 'completed' | 'failed' | 'processing';
+  transactionId?: string;
+  description?: string;
+}
+
 // Generic API functions
 export async function apiPost<T = any>(path: string, data: any, token?: string): Promise<T> {
   const headers: Record<string, string> = {
@@ -126,18 +203,26 @@ export async function apiGet<T = any>(path: string, token?: string): Promise<T> 
     headers["Authorization"] = `Bearer ${token}`;
   }
   
-  const res = await fetch(BASE_URL + path, {
+  const url = BASE_URL + path;
+  console.log('apiGet called with URL:', url, 'headers:', headers);
+  
+  const res = await fetch(url, {
     method: "GET",
     headers,
     credentials: "include",
   });
   
+  console.log('apiGet response status:', res.status, 'ok:', res.ok);
+  
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({ message: "Server error" }));
+    console.log('apiGet error data:', errorData);
     throw new Error(errorData.message || "Server error");
   }
   
-  return res.json();
+  const data = await res.json();
+  console.log('apiGet response data:', data);
+  return data;
 }
 
 export async function apiPut<T = any>(path: string, data: any, token?: string): Promise<T> {
@@ -383,6 +468,47 @@ export const wishlistApi = {
 export const razorpayApi = {
   createOrder: async (orderData: { user_id: number; amount: number; receipt?: string; notes?: Record<string, string> }, token: string): Promise<ApiResponse<any>> => {
     return apiPost<ApiResponse<any>>('/api/payments/create-order', orderData, token);
+  }
+};
+
+// Payouts API functions
+export const payoutsApi = {
+  createPayout: async (payoutData: CreatePayoutRequest, token: string): Promise<ApiResponse<Payout>> => {
+    return apiPost<ApiResponse<Payout>>('/payouts', payoutData, token);
+  },
+  getPayoutsByUserId: async (userId: number, token: string): Promise<ApiResponse<Payout[]>> => {
+    console.log('Calling getPayoutsByUserId with userId:', userId, 'token:', token ? 'Present' : 'Missing');
+    const result = await apiGet<ApiResponse<Payout[]>>(`/payouts/user/${userId}`, token);
+    console.log('getPayoutsByUserId result:', result);
+    return result;
+  },
+  getAllPayoutsWithUsers: async (token: string): Promise<ApiResponse<Payout[]>> => {
+    return apiGet<ApiResponse<Payout[]>>('/payouts/all', token);
+  },
+  getPayoutStatsByUserId: async (userId: number, token: string): Promise<ApiResponse<PayoutStats>> => {
+    return apiGet<ApiResponse<PayoutStats>>(`/payouts/stats/${userId}`, token);
+  },
+  getPayoutById: async (payoutId: string, token: string): Promise<ApiResponse<Payout>> => {
+    return apiGet<ApiResponse<Payout>>(`/payouts/${payoutId}`, token);
+  },
+  updatePayoutStatus: async (payoutId: string, updateData: UpdatePayoutRequest, token: string): Promise<ApiResponse<Payout>> => {
+    return apiPut<ApiResponse<Payout>>(`/payouts/${payoutId}/status`, updateData, token);
+  }
+};
+
+// Payments API functions
+export const paymentsApi = {
+  getPaymentsByUserId: async (userId: number, token: string): Promise<ApiResponse<Payment[]>> => {
+    return apiGet<ApiResponse<Payment[]>>(`/payments/user/${userId}`, token);
+  },
+  getAllPaymentsWithUsers: async (token: string): Promise<ApiResponse<Payment[]>> => {
+    return apiGet<ApiResponse<Payment[]>>('/payments/all', token);
+  },
+  getPaymentStatsByUserId: async (userId: number, token: string): Promise<ApiResponse<PaymentStats>> => {
+    return apiGet<ApiResponse<PaymentStats>>(`/payments/stats/${userId}`, token);
+  },
+  getPaymentById: async (paymentId: number, token: string): Promise<ApiResponse<Payment>> => {
+    return apiGet<ApiResponse<Payment>>(`/payments/${paymentId}`, token);
   }
 };
 

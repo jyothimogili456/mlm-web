@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { DollarSign, Calendar, CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight, TrendingUp } from "react-feather";
+import React, { useState, useEffect, useCallback } from "react";
+import { DollarSign, Calendar, CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight, TrendingUp, Loader } from "react-feather";
+import { payoutsApi, apiUtils } from "../../api";
 import "./PayoutsPanel.css";
 
 interface Payout {
@@ -12,6 +13,8 @@ interface Payout {
   description: string;
   bankDetails: string;
   transactionId?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 const mockPayouts: Payout[] = [
@@ -106,11 +109,89 @@ const mockPayouts: Payout[] = [
 ];
 
 export default function PayoutsPanel() {
-  const [payouts, setPayouts] = useState<Payout[]>(mockPayouts);
+  const [payouts, setPayouts] = useState<Payout[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [payoutStats, setPayoutStats] = useState({
+    totalPayouts: 0,
+    totalAmount: 0,
+    pendingAmount: 0,
+    completedAmount: 0,
+    processingAmount: 0,
+    failedAmount: 0,
+  });
+
+  // Fetch payouts data
+  const fetchPayouts = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const token = apiUtils.getToken();
+      const userData = apiUtils.getUserData();
+      
+      console.log('Token:', token ? 'Present' : 'Missing');
+      console.log('User data:', userData);
+      
+      if (!token || !userData) {
+        setError('Authentication required');
+        return;
+      }
+
+      console.log('Fetching payouts for user:', userData.id);
+      const response = await payoutsApi.getPayoutsByUserId(userData.id, token);
+      
+      console.log('Payouts API response:', response);
+      
+      if (response.statusCode === 200) {
+        setPayouts(response.data || []);
+        console.log('Payouts set successfully:', response.data);
+      } else {
+        setError(response.message || 'Failed to fetch payouts');
+      }
+    } catch (error) {
+      console.error('Error fetching payouts:', error);
+      setError(`Failed to fetch payouts: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Fetch payout stats
+  const fetchPayoutStats = useCallback(async () => {
+    try {
+      const token = apiUtils.getToken();
+      const userData = apiUtils.getUserData();
+      
+      if (!token || !userData) {
+        return;
+      }
+
+      const response = await payoutsApi.getPayoutStatsByUserId(userData.id, token);
+      
+      if (response.statusCode === 200) {
+        setPayoutStats(response.data || {
+          totalPayouts: 0,
+          totalAmount: 0,
+          pendingAmount: 0,
+          completedAmount: 0,
+          processingAmount: 0,
+          failedAmount: 0,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching payout stats:', error);
+    }
+  }, []);
+
+  // Load data on component mount
+  useEffect(() => {
+    fetchPayouts();
+    fetchPayoutStats();
+  }, [fetchPayouts, fetchPayoutStats]);
 
   // Calculate pagination
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -181,10 +262,37 @@ export default function PayoutsPanel() {
     setCurrentPage(1); // Reset to first page when filtering
   };
 
-  // Calculate summary statistics
-  const totalPayouts = payouts.filter(p => p.status === 'completed').reduce((sum, p) => sum + p.amount, 0);
-  const pendingPayouts = payouts.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
-  const processingPayouts = payouts.filter(p => p.status === 'processing').reduce((sum, p) => sum + p.amount, 0);
+  // Calculate summary statistics from API data
+  const totalPayouts = payoutStats.completedAmount;
+  const pendingPayouts = payoutStats.pendingAmount;
+  const processingPayouts = payoutStats.processingAmount;
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="payouts-dashboard-panel">
+        <div className="loading-container">
+          <Loader size={48} className="loading-spinner" />
+          <p>Loading payouts...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="payouts-dashboard-panel">
+        <div className="error-container">
+          <XCircle size={48} className="error-icon" />
+          <p>{error}</p>
+          <button onClick={fetchPayouts} className="retry-button">
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="payouts-dashboard-panel">
@@ -193,6 +301,10 @@ export default function PayoutsPanel() {
         <div className="payouts-title">
           <DollarSign size={24} />
           <h2>Payout History</h2>
+          <button onClick={fetchPayouts} className="refresh-button" disabled={loading}>
+            <Loader size={16} className={loading ? "loading-spinner" : ""} />
+            Refresh
+          </button>
         </div>
         <div className="payouts-summary">
           <div className="summary-card">
@@ -294,7 +406,7 @@ export default function PayoutsPanel() {
                   <td className="date">
                     <div className="date-content">
                       <Calendar size={14} />
-                      {formatDate(payout.date || new Date().toISOString())}
+                      {formatDate(payout.date || payout.created_at || new Date().toISOString())}
                     </div>
                   </td>
                   <td className="transaction-id">{payout.transactionId || 'N/A'}</td>
@@ -303,7 +415,7 @@ export default function PayoutsPanel() {
             ) : (
               <tr>
                 <td colSpan={8} style={{ textAlign: 'center', padding: '2rem' }}>
-                  No payouts found for the selected filter.
+                  {payouts.length === 0 ? 'No payouts found.' : 'No payouts found for the selected filter.'}
                 </td>
               </tr>
             )}

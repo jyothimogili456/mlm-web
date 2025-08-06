@@ -1,107 +1,116 @@
-import React, { useState, useEffect } from "react";
-import { CreditCard, Calendar, DollarSign, CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight } from "react-feather";
+import React, { useState, useEffect, useCallback } from "react";
+import { CreditCard, Calendar, DollarSign, CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight, Loader } from "react-feather";
+import { paymentsApi, apiUtils } from "../../api";
 import "./PaymentsPanel.css";
 
 interface Payment {
   id: number;
+  userId: number;
   orderId: string;
-  amount: number;
-  method: string;
-  status: 'pending' | 'completed' | 'failed' | 'refunded';
-  date: string;
-  description: string;
-  transactionId?: string;
+  paymentId?: string;
+  amount: string;
+  currency: string;
+  status: 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED';
+  receipt?: string;
+  createdAt: string;
+  updatedAt: string;
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+    mobileNumber: string;
+    referral_code: string;
+  };
 }
 
-const mockPayments: Payment[] = [
-  {
-    id: 1,
-    orderId: "ORD-2024-001",
-    amount: 2500,
-    method: "Credit Card",
-    status: "completed",
-    date: "2024-01-15",
-    description: "Premium Membership Plan",
-    transactionId: "TXN-123456789"
-  },
-  {
-    id: 2,
-    orderId: "ORD-2024-002",
-    amount: 1500,
-    method: "UPI",
-    status: "pending",
-    date: "2024-01-14",
-    description: "Product Purchase - Electronics",
-    transactionId: "TXN-123456790"
-  },
-  {
-    id: 3,
-    orderId: "ORD-2024-003",
-    amount: 800,
-    method: "Net Banking",
-    status: "completed",
-    date: "2024-01-13",
-    description: "Referral Bonus Payment",
-    transactionId: "TXN-123456791"
-  },
-  {
-    id: 4,
-    orderId: "ORD-2024-004",
-    amount: 3200,
-    method: "Credit Card",
-    status: "failed",
-    date: "2024-01-12",
-    description: "Premium Package Upgrade",
-    transactionId: "TXN-123456792"
-  },
-  {
-    id: 5,
-    orderId: "ORD-2024-005",
-    amount: 1200,
-    method: "UPI",
-    status: "refunded",
-    date: "2024-01-11",
-    description: "Product Return Refund",
-    transactionId: "TXN-123456793"
-  },
-  {
-    id: 6,
-    orderId: "ORD-2024-006",
-    amount: 950,
-    method: "Net Banking",
-    status: "completed",
-    date: "2024-01-10",
-    description: "Service Fee Payment",
-    transactionId: "TXN-123456794"
-  },
-  {
-    id: 7,
-    orderId: "ORD-2024-007",
-    amount: 1800,
-    method: "Credit Card",
-    status: "pending",
-    date: "2024-01-09",
-    description: "Referral Program Fee",
-    transactionId: "TXN-123456795"
-  },
-  {
-    id: 8,
-    orderId: "ORD-2024-008",
-    amount: 2100,
-    method: "UPI",
-    status: "completed",
-    date: "2024-01-08",
-    description: "Premium Features Access",
-    transactionId: "TXN-123456796"
-  }
-];
+interface PaymentStats {
+  totalPayments: number;
+  totalAmount: number;
+  pendingAmount: number;
+  paidAmount: number;
+  failedAmount: number;
+  refundedAmount: number;
+}
+
+// Mock data removed - will use real API data
 
 export default function PaymentsPanel() {
-  const [payments, setPayments] = useState<Payment[]>(mockPayments);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [paymentStats, setPaymentStats] = useState<PaymentStats>({
+    totalPayments: 0,
+    totalAmount: 0,
+    pendingAmount: 0,
+    paidAmount: 0,
+    failedAmount: 0,
+    refundedAmount: 0,
+  });
+
+  // Fetch payments data
+  const fetchPayments = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const token = apiUtils.getToken();
+      const userData = apiUtils.getUserData();
+      
+      if (!token || !userData) {
+        setError('Authentication required');
+        return;
+      }
+
+      const response = await paymentsApi.getPaymentsByUserId(userData.id, token);
+      
+      if (response.statusCode === 200) {
+        setPayments(response.data || []);
+      } else {
+        setError(response.message || 'Failed to fetch payments');
+      }
+    } catch (error) {
+      console.error('Error fetching payments:', error);
+      setError(`Failed to fetch payments: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Fetch payment stats
+  const fetchPaymentStats = useCallback(async () => {
+    try {
+      const token = apiUtils.getToken();
+      const userData = apiUtils.getUserData();
+      
+      if (!token || !userData) {
+        return;
+      }
+
+      const response = await paymentsApi.getPaymentStatsByUserId(userData.id, token);
+      
+      if (response.statusCode === 200) {
+        setPaymentStats(response.data || {
+          totalPayments: 0,
+          totalAmount: 0,
+          pendingAmount: 0,
+          paidAmount: 0,
+          failedAmount: 0,
+          refundedAmount: 0,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching payment stats:', error);
+    }
+  }, []);
+
+  // Load data on component mount
+  useEffect(() => {
+    fetchPayments();
+    fetchPaymentStats();
+  }, [fetchPayments, fetchPaymentStats]);
 
   // Calculate pagination
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -131,13 +140,13 @@ export default function PaymentsPanel() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed':
+      case 'PAID':
         return <CheckCircle size={16} className="status-icon completed" />;
-      case 'pending':
+      case 'PENDING':
         return <Clock size={16} className="status-icon pending" />;
-      case 'failed':
+      case 'FAILED':
         return <XCircle size={16} className="status-icon failed" />;
-      case 'refunded':
+      case 'REFUNDED':
         return <DollarSign size={16} className="status-icon refunded" />;
       default:
         return <Clock size={16} className="status-icon pending" />;
@@ -172,6 +181,33 @@ export default function PaymentsPanel() {
     setCurrentPage(1); // Reset to first page when filtering
   };
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="payments-dashboard-panel">
+        <div className="loading-container">
+          <Loader size={48} className="loading-spinner" />
+          <p>Loading payments...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="payments-dashboard-panel">
+        <div className="error-container">
+          <XCircle size={48} className="error-icon" />
+          <p>{error}</p>
+          <button onClick={fetchPayments} className="retry-button">
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="payments-dashboard-panel">
       {/* Header */}
@@ -179,6 +215,10 @@ export default function PaymentsPanel() {
         <div className="payments-title">
           <CreditCard size={24} />
           <h2>Payment History</h2>
+          <button onClick={fetchPayments} className="refresh-button" disabled={loading}>
+            <Loader size={16} className={loading ? "loading-spinner" : ""} />
+            Refresh
+          </button>
         </div>
         <div className="payments-summary">
           <div className="summary-card">
@@ -187,7 +227,7 @@ export default function PaymentsPanel() {
             </div>
             <div className="summary-content">
               <span className="summary-label">Total Paid</span>
-              <span className="summary-value">₹8,450</span>
+              <span className="summary-value">{formatAmount(paymentStats.paidAmount)}</span>
             </div>
           </div>
           <div className="summary-card">
@@ -196,7 +236,7 @@ export default function PaymentsPanel() {
             </div>
             <div className="summary-content">
               <span className="summary-label">Pending</span>
-              <span className="summary-value">₹3,300</span>
+              <span className="summary-value">{formatAmount(paymentStats.pendingAmount)}</span>
             </div>
           </div>
           <div className="summary-card">
@@ -205,7 +245,7 @@ export default function PaymentsPanel() {
             </div>
             <div className="summary-content">
               <span className="summary-label">Failed</span>
-              <span className="summary-value">₹3,200</span>
+              <span className="summary-value">{formatAmount(paymentStats.failedAmount)}</span>
             </div>
           </div>
         </div>
@@ -221,28 +261,28 @@ export default function PaymentsPanel() {
             All ({payments.length})
           </button>
           <button 
-            className={`filter-btn ${filterStatus === 'completed' ? 'active' : ''}`}
-            onClick={() => handleFilterChange('completed')}
+            className={`filter-btn ${filterStatus === 'PAID' ? 'active' : ''}`}
+            onClick={() => handleFilterChange('PAID')}
           >
-            Completed ({payments.filter(p => p.status === 'completed').length})
+            Paid ({payments.filter(p => p.status === 'PAID').length})
           </button>
           <button 
-            className={`filter-btn ${filterStatus === 'pending' ? 'active' : ''}`}
-            onClick={() => handleFilterChange('pending')}
+            className={`filter-btn ${filterStatus === 'PENDING' ? 'active' : ''}`}
+            onClick={() => handleFilterChange('PENDING')}
           >
-            Pending ({payments.filter(p => p.status === 'pending').length})
+            Pending ({payments.filter(p => p.status === 'PENDING').length})
           </button>
           <button 
-            className={`filter-btn ${filterStatus === 'failed' ? 'active' : ''}`}
-            onClick={() => handleFilterChange('failed')}
+            className={`filter-btn ${filterStatus === 'FAILED' ? 'active' : ''}`}
+            onClick={() => handleFilterChange('FAILED')}
           >
-            Failed ({payments.filter(p => p.status === 'failed').length})
+            Failed ({payments.filter(p => p.status === 'FAILED').length})
           </button>
           <button 
-            className={`filter-btn ${filterStatus === 'refunded' ? 'active' : ''}`}
-            onClick={() => handleFilterChange('refunded')}
+            className={`filter-btn ${filterStatus === 'REFUNDED' ? 'active' : ''}`}
+            onClick={() => handleFilterChange('REFUNDED')}
           >
-            Refunded ({payments.filter(p => p.status === 'refunded').length})
+            Refunded ({payments.filter(p => p.status === 'REFUNDED').length})
           </button>
         </div>
       </div>
@@ -253,12 +293,11 @@ export default function PaymentsPanel() {
           <thead>
             <tr>
               <th>Order ID</th>
-              <th>Description</th>
               <th>Amount</th>
-              <th>Payment Method</th>
+              <th>Currency</th>
               <th>Status</th>
               <th>Date</th>
-              <th>Transaction ID</th>
+              <th>Payment ID</th>
             </tr>
           </thead>
           <tbody>
@@ -266,27 +305,26 @@ export default function PaymentsPanel() {
                currentPayments.map((payment, index) => (
                  <tr key={payment.id} className={index % 2 === 0 ? 'orders-row-even' : 'orders-row-odd'}>
                   <td className="order-id">{payment.orderId || 'N/A'}</td>
-                  <td className="description">{payment.description || 'N/A'}</td>
-                  <td className="amount">{formatAmount(payment.amount || 0)}</td>
-                  <td className="method">{payment.method || 'N/A'}</td>
+                  <td className="amount">{formatAmount(parseFloat(payment.amount) || 0)}</td>
+                  <td className="currency">{payment.currency || 'INR'}</td>
                   <td className="status">
-                    <span className={getStatusClass(payment.status || 'pending')}>
-                      {getStatusIcon(payment.status || 'pending')}
-                      {(payment.status || 'pending').charAt(0).toUpperCase() + (payment.status || 'pending').slice(1)}
+                    <span className={getStatusClass(payment.status || 'PENDING')}>
+                      {getStatusIcon(payment.status || 'PENDING')}
+                      {(payment.status || 'PENDING').charAt(0).toUpperCase() + (payment.status || 'PENDING').slice(1)}
                     </span>
                   </td>
                   <td className="date">
                     <div className="date-content">
                       <Calendar size={14} />
-                      {formatDate(payment.date || new Date().toISOString())}
+                      {formatDate(payment.createdAt || new Date().toISOString())}
                     </div>
                   </td>
-                  <td className="transaction-id">{payment.transactionId || 'N/A'}</td>
+                  <td className="payment-id">{payment.paymentId || 'N/A'}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={7} style={{ textAlign: 'center', padding: '2rem' }}>
+                <td colSpan={6} style={{ textAlign: 'center', padding: '2rem' }}>
                   No payments found for the selected filter.
                 </td>
               </tr>

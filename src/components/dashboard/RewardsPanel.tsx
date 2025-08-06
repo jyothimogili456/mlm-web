@@ -172,8 +172,7 @@ export default function RewardsPanel() {
             current: stats.todayReferrals,
             timeframe: "in a day",
             icon: "💰",
-            color: "#10b981",
-            nextGoal: stats.todayNextGoal
+            color: "#10b981"
           },
           {
             id: 2,
@@ -190,11 +189,10 @@ export default function RewardsPanel() {
             title: "Monthly Smartphone",
             description: "Smart Phone",
             target: 100,
-            current: stats.monthReferrals,
+            current: Math.min(stats.monthReferrals, 100),
             timeframe: "in a month",
             icon: "📱",
-            color: "#8b5cf6",
-            nextGoal: stats.monthNextGoal
+            color: "#8b5cf6"
           }
         ];
         
@@ -540,7 +538,7 @@ export default function RewardsPanel() {
   const getRemainingText = (current: number, target: number) => {
     const remaining = target - current;
     if (remaining <= 0) return "Target Achieved! 🎉";
-    return `${remaining} more to go`;
+    return `${remaining} more referrals to go`;
   };
 
   if (loading) {
@@ -661,7 +659,7 @@ export default function RewardsPanel() {
                       {pkg.current}/{pkg.target} referrals
                     </span>
                     <span className="rewards-package-remaining">
-                      {pkg.nextGoal || remainingText}
+                      {remainingText}
                     </span>
                   </div>
                   
