@@ -1,4 +1,4 @@
-.support-dashboard-panel {
+/* .support-dashboard-panel {
   max-width: 900px;
   margin: 2rem auto;
   padding: 0 1rem 2rem 1rem;
@@ -258,4 +258,43 @@
     padding: 0.5rem 0.3rem;
     font-size: 0.97rem;
   }
-} 
+}  */
+
+.support-dashboard-panel {
+  padding: 2rem;
+  max-width: 600px;
+  margin: auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #ccc;
+}
+
+.support-header {
+  font-size: 20px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.support-message {
+  text-align: center;
+  font-size: 16px;
+  margin-top: 2rem;
+}
+
+.support-email-btn {
+  margin-top: 1rem;
+  background-color: #7c3aed;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.support-email-btn:hover {
+  background-color: #0056b3;
+}
