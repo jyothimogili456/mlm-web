@@ -67,9 +67,9 @@ export default function MyOrdersPanel() {
           const transformedOrders = result.data.map((order: any) => ({
             id: order.id?.toString() || order.orderId?.toString() || `ORD${Math.random().toString(36).substr(2, 9)}`,
             product: order.productName || order.product || 'Product',
-            date: order.created_at || order.orderDate || new Date().toISOString().split('T')[0],
+            date: order.orderedAt || order.created_at || order.orderDate || new Date().toISOString().split('T')[0],
             status: order.status || 'Processing',
-            amount: order.amount || order.totalAmount || 0
+            amount: order.productPrice ? (order.productPrice * (order.quantity || 1)) : (order.amount || order.totalAmount || 0)
           }));
           
           setOrders(transformedOrders);
