@@ -14,7 +14,7 @@ import SupportPanel from "../components/dashboard/SupportPanel";
 import InvoicesPanel from "../components/dashboard/InvoicesPanel";
 import SpecialOffersPanel from "../components/dashboard/SpecialOffersPanel";
 import { DollarSign, Users, Loader } from "react-feather";
-import { apiUtils, userApi, productApi } from "../api";
+import { apiUtils, userApi, productApi, bankDetailsApi } from "../api";
 import "./Dashboard.css";
 
 function DashboardHome() {
@@ -29,6 +29,8 @@ function DashboardHome() {
   const [referralCountLoading, setReferralCountLoading] = useState(true);
   const [referralCountError, setReferralCountError] = useState<string | null>(null);
   const [userData, setUserData] = useState<any>(null);
+  const [totalRedeemedAmount, setTotalRedeemedAmount] = useState<number>(0);
+  const [redeemHistoryLoading, setRedeemHistoryLoading] = useState(true);
   const referralLink = userData?.referral_code 
     ? `https://giftshero.com/ref/${userData.referral_code}`
     : "https://giftshero.com/ref/GH1234";
@@ -63,6 +65,36 @@ function DashboardHome() {
     };
 
     fetchWalletBalance();
+  }, []);
+
+  // Fetch redeem history to calculate total redeemed amount
+  useEffect(() => {
+    const fetchRedeemHistory = async () => {
+      try {
+        setRedeemHistoryLoading(true);
+        const userData = apiUtils.getUserData();
+        const token = apiUtils.getToken();
+        
+        if (!userData || !token) {
+          return;
+        }
+
+        const historyResponse = await bankDetailsApi.getRedeemHistory(userData.id, token);
+        if (historyResponse.data) {
+          const totalRedeemed = historyResponse.data
+            .filter((item: any) => item.status === 'deposited')
+            .reduce((sum: number, item: any) => sum + (item.redeemAmount || 0), 0);
+          setTotalRedeemedAmount(totalRedeemed);
+        }
+      } catch (error) {
+        console.log('Error fetching redeem history:', error);
+        setTotalRedeemedAmount(0);
+      } finally {
+        setRedeemHistoryLoading(false);
+      }
+    };
+
+    fetchRedeemHistory();
   }, []);
 
   // Fetch user data and referral count
@@ -187,7 +219,13 @@ function DashboardHome() {
         </div>
         <div className="gh-summary-card gh-animate">
           <div className="gh-summary-icon"><Users size={28} /></div>
-          <div className="gh-summary-value">₹800</div>
+          <div className="gh-summary-value">
+            {redeemHistoryLoading ? (
+              <Loader size={20} className="animate-spin" />
+            ) : (
+              `₹${totalRedeemedAmount.toLocaleString()}`
+            )}
+          </div>
           <div className="gh-summary-label">Referral Earnings</div>
         </div>
         {/* <div className="gh-summary-card gh-animate">
@@ -224,7 +262,7 @@ function DashboardHome() {
           ) : (
             <div className="gh-orders-empty">
               <span>No recent orders found</span>
-            </div>
+          </div>
           )}
         </div>
         <div className="gh-referral-widget gh-animate">
