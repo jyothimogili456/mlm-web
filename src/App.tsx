@@ -104,9 +104,8 @@ function App() {
               </ProtectedRoute>
             } />
             <Route path="/rewards" element={
-              <ProtectedRoute>
+
                 <MainLayout><Rewards /></MainLayout>
-              </ProtectedRoute>
             } />
             <Route path="/direct-referrals" element={
               <ProtectedRoute>
