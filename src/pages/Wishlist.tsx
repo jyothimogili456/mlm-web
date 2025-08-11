@@ -197,18 +197,11 @@ const Wishlist: React.FC = () => {
 
         {!wishlistState.loading && !wishlistState.error && wishlistState.items.length === 0 && (
           <div className="wishlist-empty">
-            <img src={nowishlistImg} alt="Empty wishlist" className="wishlist-empty-img" />
-            {/* <h2 className="wishlist-empty-title">Your Wishlist is Empty</h2> */}
+            <img src={nowishlistImg} alt="No products found" className="wishlist-empty-img" />
+           
             <p>Start adding products to your wishlist to see them here.</p>
-            {/* <button
-              className="cart-shop-btn"
-              // type="button"
-              onClick={() => navigate('/products')}
-            >
-              Browse Products
-            </button> */}
             <Link to="/products" className="cart-shop-btn">
-                        Browse Products
+              Browse Products
             </Link>
           </div>
         )}

@@ -307,9 +307,20 @@ export default function Products() {
           <button className="clear-filter-btn" onClick={handleClear}>Clear Filter</button>
         </aside>
         <main className="products-grid">
+          {(products.length === 0) && (
+            <div className="no-products">
+              <img src={noproImg} alt="No products found" className="products-empty-img" />
+              {/* <h2 className="products-empty-title">No products found</h2> */}
+              <p>There are currently no products available.</p>
+              <Link to="/" className="products-shop-btn go-home-btn">Go to Home</Link>
+            </div>
+          )}
           {filtered.length === 0 && products.length > 0 && (
             <div className="no-products">
+              <img src={noproImg} alt="No products found" className="products-empty-img" />
+              <h2 className="products-empty-title">No products found</h2>
               <p>No products match your filters.</p>
+              <Link to="/" className="products-shop-btn">Go to Home</Link>
             </div>
           )}
           {filtered.length > 0 && filtered.map(product => (
