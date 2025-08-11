@@ -171,13 +171,28 @@ const Wishlist: React.FC = () => {
         )}
 
         {wishlistState.error && (
-          <div className="wishlist-error">
-            <Loader size={32} style={{ color: '#ef4444', marginBottom: '0.75rem' }} />
-            <p style={{ color: '#ef4444' }}>Error: {wishlistState.error}</p>
-            <button onClick={handleRefresh} className="wishlist-retry-btn">
-              Retry
-            </button>
-          </div>
+          ((wishlistState.error &&
+            (wishlistState.error.toLowerCase().includes('token') || wishlistState.error.toLowerCase().includes('expired') || wishlistState.error.toLowerCase().includes('login') || wishlistState.error.toLowerCase().includes('session')))
+            ? (
+              <div className="wishlist-login-prompt">
+                <Heart size={48} color="#7c3aed" />
+                <h2>Please Login to View Your Wishlist</h2>
+                <p>Your session has expired. Please login again to continue.</p>
+                <Link to="/login" className="wishlist-login-btn">
+                  Login Now
+                </Link>
+              </div>
+            )
+            : (
+              <div className="wishlist-error">
+                <Loader size={32} style={{ color: '#ef4444', marginBottom: '0.75rem' }} />
+                <p style={{ color: '#ef4444' }}>Error: {wishlistState.error}</p>
+                <button onClick={handleRefresh} className="wishlist-retry-btn">
+                  Retry
+                </button>
+              </div>
+            )
+          )
         )}
 
         {!wishlistState.loading && !wishlistState.error && wishlistState.items.length === 0 && (

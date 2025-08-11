@@ -221,6 +221,28 @@ export default function Products() {
   }
 
   if (error) {
+    if (
+      error.toLowerCase().includes('token') ||
+      error.toLowerCase().includes('expired') ||
+      error.toLowerCase().includes('login') ||
+      error.toLowerCase().includes('session')
+    ) {
+      return (
+        <section className="products-section" id="products">
+          <div className="section-header">
+            <h2 className="section-title">Our Premium Products</h2>
+            <p className="section-subtitle">
+              Discover high-quality products that can transform your life and earn you rewards
+            </p>
+          </div>
+          <div className="products-login-prompt">
+            <h2>Please Login to View Products</h2>
+            <p>Your session has expired. Please login again to continue.</p>
+            <Link to="/login" className="products-login-btn">Login Now</Link>
+          </div>
+        </section>
+      );
+    }
     return (
       <section className="products-section" id="products">
         <div className="section-header">
@@ -287,46 +309,31 @@ export default function Products() {
         <main className="products-grid">
           {filtered.length === 0 && products.length > 0 && (
             <div className="no-products">
-              <img src={noproImg} alt="No products" className="no-products-img" style={{maxWidth: '220px', marginBottom: '1rem'}} />
-              <p>No products match your current filters.</p>
-              <p>Total products available: {products.length}</p>
-              <button onClick={handleClear} className="clear-filter-btn">
-                Clear All Filters
-              </button>
+              <p>No products match your filters.</p>
             </div>
           )}
-          {products.length === 0 && (
-            <div className="no-products">
-              <img src={noproImg} alt="No products" className="no-products-img" style={{maxWidth: '220px', marginBottom: '1rem'}} />
-              {/* <p>No products found</p> */}
-            </div>
-          )}
-          {filtered.map(product => (
-            <div className="product-card-container" key={product.id}>
-              <Link to={`/products/${product.id}`} className="product-card-link">
-                <div className="product-card-grid">
-                  <div className="product-img-wrap">
-                    <img src={product.image} alt={product.name} className="product-img" />
-                    {product.mrp > product.price && (
-                      <span className="product-discount-badge">{Math.round(100 - (product.price / product.mrp) * 100)}% OFF</span>
-                    )}
-                  </div>
-                  <div className="product-info">
-                    <div className="product-name">{product.name}</div>
-                    <div className="product-description">{product.description}</div>
-                    <div className="product-rating-row">
-                      <span className="product-stars">{'★'.repeat(Math.floor(product.rating))}{'☆'.repeat(5 - Math.floor(product.rating))}</span>
-                      <span className="product-rating-value">{product.rating.toFixed(1)}</span>
-                    </div>
-                    <div className="product-price-row">
-                      <span className="product-price">₹{product.price.toLocaleString()}</span>
-                      {product.mrp > product.price && (
-                        <span className="product-mrp">₹{product.mrp.toLocaleString()}</span>
-                      )}
-                    </div>
-                  </div>
+          {filtered.length > 0 && filtered.map(product => (
+            <div className="product-card-grid" key={product.id}>
+              <div className="product-img-wrap">
+                <img src={product.image} alt={product.name} className="product-img" />
+                {product.mrp > product.price && (
+                  <span className="product-discount-badge">{Math.round(100 - (product.price / product.mrp) * 100)}% OFF</span>
+                )}
+              </div>
+              <div className="product-info">
+                <div className="product-name">{product.name}</div>
+                <div className="product-description">{product.description}</div>
+                <div className="product-rating-row">
+                  <span className="product-stars">{'★'.repeat(Math.floor(product.rating))}{'☆'.repeat(5 - Math.floor(product.rating))}</span>
+                  <span className="product-rating-value">{product.rating.toFixed(1)}</span>
                 </div>
-              </Link>
+                <div className="product-price-row">
+                  <span className="product-price">₹{product.price.toLocaleString()}</span>
+                  {product.mrp > product.price && (
+                    <span className="product-mrp">₹{product.mrp.toLocaleString()}</span>
+                  )}
+                </div>
+              </div>
               <div className="product-actions">
                 <button 
                   className={`action-btn cart-btn ${loadingStates[product.id] === 'cart' ? 'loading' : ''}`}
@@ -360,7 +367,6 @@ export default function Products() {
           ))}
         </main>
       </div>
-      
       {/* Popup Modal */}
       <PopupModal
         isOpen={popup.isOpen}
@@ -373,4 +379,4 @@ export default function Products() {
       />
     </section>
   );
-} 
+}

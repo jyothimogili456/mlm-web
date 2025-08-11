@@ -89,6 +89,25 @@ export default function ReferralsPanel() {
   }
 
   if (error) {
+    const lowerError = error.toLowerCase();
+    if (
+      lowerError.includes('token') ||
+      lowerError.includes('expired') ||
+      lowerError.includes('login') ||
+      lowerError.includes('session') ||
+      lowerError.includes('authentication required')
+    ) {
+      return (
+        <div className="referral-dashboard-panel">
+          <div className="referral-login-prompt">
+            <Link size={48} color="#7c3aed" />
+            <h2>Please Login to View Your Referrals</h2>
+            <p>Your session has expired. Please login again to continue.</p>
+            <a href="/login" className="referral-login-btn">Login Now</a>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="referral-dashboard-panel">
         <div className="referral-error">

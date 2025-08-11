@@ -5,13 +5,24 @@ import { LogOut, User, Mail, Phone, MapPin } from 'lucide-react';
 const Profile: React.FC = () => {
   const [userData, setUserData] = useState<any>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAuthStatus = () => {
-      const loggedIn = apiUtils.isLoggedIn();
-      const user = apiUtils.getUserData();
-      setIsLoggedIn(loggedIn);
-      setUserData(user);
+      try {
+        const loggedIn = apiUtils.isLoggedIn();
+        const user = apiUtils.getUserData();
+        setIsLoggedIn(loggedIn);
+        setUserData(user);
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else if (typeof err === 'string') {
+          setError(err);
+        } else {
+          setError('Session error');
+        }
+      }
     };
 
     checkAuthStatus();
@@ -33,7 +44,10 @@ const Profile: React.FC = () => {
         alignItems: 'center'
       }}>
         <h2>Please Login</h2>
-        <p>You need to be logged in to view your profile.</p>
+        <p>{error && (error.toLowerCase().includes('token') || error.toLowerCase().includes('expired') || error.toLowerCase().includes('login') || error.toLowerCase().includes('session'))
+          ? 'Your session has expired. Please login again to continue.'
+          : 'You need to be logged in to view your profile.'}
+        </p>
         <button 
           onClick={() => window.location.href = '/login'}
           style={{

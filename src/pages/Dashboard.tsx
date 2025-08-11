@@ -207,6 +207,10 @@ function DashboardHome() {
           <div className="gh-summary-value">
             {walletLoading ? (
               <Loader size={20} className="animate-spin" />
+            ) : walletError && (walletError.toLowerCase().includes('token') || walletError.toLowerCase().includes('login') || walletError.toLowerCase().includes('expired')) ? (
+              <div className="gh-login-prompt">
+                <span style={{ color: '#7c3aed', fontWeight: 600 }}>Please login to view wallet balance</span>
+              </div>
             ) : walletError ? (
               <span style={{ color: '#ef4444', fontSize: '14px' }}>Error</span>
             ) : walletBalance !== null ? (
@@ -242,12 +246,16 @@ function DashboardHome() {
               <Loader size={20} className="animate-spin" />
               <span>Loading recent orders...</span>
             </div>
+          ) : ordersError && (ordersError.toLowerCase().includes('token') || ordersError.toLowerCase().includes('login') || ordersError.toLowerCase().includes('expired')) ? (
+            <div className="gh-login-prompt">
+              <span style={{ color: '#7c3aed', fontWeight: 600 }}>Please login to view recent orders</span>
+            </div>
           ) : ordersError ? (
             <div className="gh-orders-error">
               <span>{ordersError}</span>
             </div>
           ) : recentOrders.length > 0 ? (
-          <ul className="gh-orders-list">
+            <ul className="gh-orders-list">
               {recentOrders.map((order) => (
                 <li key={order.id} className="gh-order-item">
                   <span className="gh-order-id">#{order.id}</span>
@@ -256,13 +264,13 @@ function DashboardHome() {
                     {order.status}
                   </span>
                   <span className="gh-order-date">{order.date}</span>
-            </li>
+                </li>
               ))}
-          </ul>
+            </ul>
           ) : (
             <div className="gh-orders-empty">
               <span>No recent orders found</span>
-          </div>
+            </div>
           )}
         </div>
         <div className="gh-referral-widget gh-animate">
@@ -273,6 +281,8 @@ function DashboardHome() {
               <div className="gh-referral-value">
                 {referralCountLoading ? (
                   <Loader size={16} className="animate-spin" />
+                ) : referralCountError && (referralCountError.toLowerCase().includes('token') || referralCountError.toLowerCase().includes('login') || referralCountError.toLowerCase().includes('expired')) ? (
+                  <span style={{ color: '#7c3aed', fontWeight: 600 }}>Please login to view referral stats</span>
                 ) : referralCountError ? (
                   <span style={{ color: '#ef4444', fontSize: '14px' }}>Error</span>
                 ) : (

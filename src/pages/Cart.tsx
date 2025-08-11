@@ -300,6 +300,19 @@ const Cart: React.FC = () => {
   }
 
   if (cartState.error) {
+    if (cartState.error?.toLowerCase().includes('token') || cartState.error?.toLowerCase().includes('expired')) {
+      return (
+        <div className="cart-page">
+          <div className="cart-login-prompt">
+            <h2>Please Login to View Your Cart</h2>
+            <p>Your session has expired. Please login again to continue.</p>
+            <Link to="/login" className="cart-login-btn">
+              Login Now
+            </Link>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="cart-page">
         <div className="cart-error">
