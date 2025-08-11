@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { apiUtils, productApi } from '../api';
 import { ShoppingCart, Heart, Eye, Loader } from 'lucide-react';
+import noproImg from '../assets/nopro.jpg';
 import PopupModal from '../components/PopupModal';
 import './Products.css';
 import './Products-mobile-fix.css';
@@ -286,6 +287,7 @@ export default function Products() {
         <main className="products-grid">
           {filtered.length === 0 && products.length > 0 && (
             <div className="no-products">
+              <img src={noproImg} alt="No products" className="no-products-img" style={{maxWidth: '220px', marginBottom: '1rem'}} />
               <p>No products match your current filters.</p>
               <p>Total products available: {products.length}</p>
               <button onClick={handleClear} className="clear-filter-btn">
@@ -295,7 +297,8 @@ export default function Products() {
           )}
           {products.length === 0 && (
             <div className="no-products">
-              <p>No products found in database.</p>
+              <img src={noproImg} alt="No products" className="no-products-img" style={{maxWidth: '220px', marginBottom: '1rem'}} />
+              {/* <p>No products found</p> */}
             </div>
           )}
           {filtered.map(product => (

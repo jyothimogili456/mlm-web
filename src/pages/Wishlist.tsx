@@ -6,6 +6,7 @@ import { Heart, ShoppingCart, Trash2, Loader, Eye } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import ConfirmationModal from "../components/ConfirmationModal";
 import "./Wishlist.css";
+import nowishlistImg from '../assets/wishlist.png';
 
 interface Product {
   id: number;
@@ -134,14 +135,14 @@ const Wishlist: React.FC = () => {
 
   return (
     <div className="wishlist-page">
-      <div className="wishlist-container">
-        <div className="wishlist-header">
+      <div className="wishlist-container1">
+        <div className="wishlist-header1">
           <div className="wishlist-title">
             <Heart size={32} color="#7c3aed" />
             <h1>My Wishlist</h1>
             <span className="wishlist-count">({wishlistState.items.length} items)</span>
           </div>
-          <div className="wishlist-actions">
+          {/* <div className="wishlist-actions">
             <button 
               onClick={handleRefresh} 
               className="wishlist-refresh-btn"
@@ -159,7 +160,7 @@ const Wishlist: React.FC = () => {
                 Clear All
               </button>
             )}
-          </div>
+          </div> */}
         </div>
 
         {wishlistState.loading && (
@@ -171,7 +172,8 @@ const Wishlist: React.FC = () => {
 
         {wishlistState.error && (
           <div className="wishlist-error">
-            <p>Error: {wishlistState.error}</p>
+            <Loader size={32} style={{ color: '#ef4444', marginBottom: '0.75rem' }} />
+            <p style={{ color: '#ef4444' }}>Error: {wishlistState.error}</p>
             <button onClick={handleRefresh} className="wishlist-retry-btn">
               Retry
             </button>
@@ -180,11 +182,18 @@ const Wishlist: React.FC = () => {
 
         {!wishlistState.loading && !wishlistState.error && wishlistState.items.length === 0 && (
           <div className="wishlist-empty">
-            <Heart size={64} color="#d1d5db" />
-            <h2>Your Wishlist is Empty</h2>
+            <img src={nowishlistImg} alt="Empty wishlist" className="wishlist-empty-img" />
+            {/* <h2 className="wishlist-empty-title">Your Wishlist is Empty</h2> */}
             <p>Start adding products to your wishlist to see them here.</p>
-            <Link to="/products" className="wishlist-shop-btn">
+            {/* <button
+              className="cart-shop-btn"
+              // type="button"
+              onClick={() => navigate('/products')}
+            >
               Browse Products
+            </button> */}
+            <Link to="/products" className="cart-shop-btn">
+                        Browse Products
             </Link>
           </div>
         )}

@@ -3,6 +3,7 @@ import { useCart } from "../context/CartContext";
 import { apiUtils, productApi, razorpayApi } from "../api";
 import { ShoppingCart, Trash2, Loader, Minus, Plus, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
+import nocartImg from '../assets/bgcart.png'
 import ConfirmationModal from "../components/ConfirmationModal";
 import "./Cart.css";
 
@@ -314,9 +315,9 @@ const Cart: React.FC = () => {
   if (cartState.items.length === 0) {
     return (
       <div className="cart-page">
-        <div className="cart-empty">
-          <ShoppingCart size={64} color="#d1d5db" />
-          <h2>Your Cart is Empty</h2>
+        <div className="cart-empty" style={{background: 'none', boxShadow: 'none'}}>
+          <img src={nocartImg} alt="Empty cart" className="cart-empty-img" style={{maxWidth: '180px', marginBottom: '1rem'}} />
+          {/* <h2>Your Cart is Empty</h2> */}
           <p>Start shopping to add items to your cart.</p>
           <Link to="/products" className="cart-shop-btn">
             Browse Products
