@@ -414,6 +414,42 @@ export const faqApi = {
   }
 };
 
+// Privacy Policy API functions
+export const privacyApi = {
+  // Get all privacy policies
+  getAllPrivacy: async (): Promise<ApiResponse<any[]>> => {
+    return apiGet<ApiResponse<any[]>>('/privacy');
+  },
+
+  // Get active privacy policy
+  getActivePrivacy: async (): Promise<ApiResponse<any>> => {
+    return apiGet<ApiResponse<any>>('/privacy/active');
+  },
+
+  // Get privacy policy by ID
+  getPrivacyById: async (id: number): Promise<ApiResponse<any>> => {
+    return apiGet<ApiResponse<any>>(`/privacy/${id}`);
+  }
+};
+
+// Terms & Conditions API functions
+export const termsApi = {
+  // Get all terms and conditions
+  getAllTerms: async (): Promise<ApiResponse<any[]>> => {
+    return apiGet<ApiResponse<any[]>>('/terms');
+  },
+
+  // Get active terms and conditions
+  getActiveTerms: async (): Promise<ApiResponse<any>> => {
+    return apiGet<ApiResponse<any>>('/terms/active');
+  },
+
+  // Get terms and conditions by ID
+  getTermsById: async (id: number): Promise<ApiResponse<any>> => {
+    return apiGet<ApiResponse<any>>(`/terms/${id}`);
+  }
+};
+
 // Cart API functions
 export const cartApi = {
   addToCart: async (userId: number, productId: number, quantity: number = 1, token: string): Promise<ApiResponse<any>> => {

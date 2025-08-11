@@ -1,103 +1,162 @@
-import React, { useState } from "react";
-import "./PrivacyPolicyPage.css";
+import React, { useState, useEffect } from 'react';
+import { privacyApi } from '../api';
+import './PrivacyPolicyPage.css';
 
-const sections = [
-  {
-    id: "data-collect",
-    title: "What Personal Data We Collect",
-    content: (
-      <ul>
-        <li>Name, email, phone, and address</li>
-        <li>Order and payment details</li>
-        <li>Device and browser information</li>
-        <li>Usage data (pages visited, actions taken)</li>
-        <li>Referral and marketing data</li>
-      </ul>
-    )
-  },
-  {
-    id: "data-use",
-    title: "How Data is Used",
-    content: (
-      <ul>
-        <li>To process orders and provide services</li>
-        <li>For marketing and promotional communications</li>
-        <li>To improve our website and user experience</li>
-        <li>For analytics and business insights</li>
-        <li>To comply with legal obligations</li>
-      </ul>
-    )
-  },
-  {
-    id: "data-storage",
-    title: "Data Storage & Protection Methods",
-    content: (
-      <ul>
-        <li>Data is stored on secure, encrypted servers</li>
-        <li>Access is restricted to authorized personnel only</li>
-        <li>Regular security audits and updates</li>
-        <li>We use SSL/TLS for data transmission</li>
-      </ul>
-    )
-  },
-  {
-    id: "third-parties",
-    title: "Sharing with Third Parties",
-    content: (
-      <ul>
-        <li>Trusted payment processors and logistics partners</li>
-        <li>Marketing and analytics service providers</li>
-        <li>Legal authorities when required by law</li>
-        <li>We never sell your personal data</li>
-      </ul>
-    )
-  },
-  {
-    id: "your-rights",
-    title: "Your Rights (Access, Delete, Modify)",
-    content: (
-      <ul>
-        <li>Request a copy of your personal data</li>
-        <li>Ask us to correct or update your information</li>
-        <li>Request deletion of your data (subject to legal limits)</li>
-        <li>Opt out of marketing communications at any time</li>
-      </ul>
-    )
-  },
-  {
-    id: "contact-info",
-    title: "Contact Info for Privacy Concerns",
-    content: (
-      <ul>
-        <li><b>Email:</b> privacy@giftshero.com</li>
-        <li><b>Phone:</b> +91 98765 43210</li>
-        <li><b>Address:</b> 123 GiftsHero Avenue, Mumbai, India</li>
-      </ul>
-    )
-  }
-];
+const PrivacyPolicyPage = () => {
+  console.log('PrivacyPolicyPage component rendered');
+  const [privacyData, setPrivacyData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-export default function PrivacyPolicyPage() {
-  const [open, setOpen] = useState<string | null>(sections[0].id);
+  useEffect(() => {
+    const fetchPrivacyPolicy = async () => {
+      try {
+        setLoading(true);
+        const response = await privacyApi.getAllPrivacy();
+        if (response.data) {
+          setPrivacyData(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching privacy policy:', error);
+        setError('Failed to load privacy policy. Please try again later.');
+        // Set fallback content
+        setPrivacyData([
+          {
+            title: 'Privacy Policy',
+            content: `
+              <h3>Information We Collect</h3>
+              <p>We collect information you provide directly to us, such as when you create an account, make a purchase, or contact us for support.</p>
+              
+              <h3>How We Use Your Information</h3>
+              <p>We use the information we collect to provide, maintain, and improve our services, process transactions, and communicate with you.</p>
+              
+              <h3>Information Sharing</h3>
+              <p>We do not sell, trade, or otherwise transfer your personal information to third parties without your consent, except as described in this policy.</p>
+              
+              <h3>Data Security</h3>
+              <p>We implement appropriate security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.</p>
+              
+              <h3>Your Rights</h3>
+              <p>You have the right to access, update, or delete your personal information. You can also opt out of certain communications from us.</p>
+              
+              <h3>Contact Us</h3>
+              <p>If you have any questions about this Privacy Policy, please contact us at privacy@camelq.com</p>
+            `
+          }
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPrivacyPolicy();
+  }, []);
+
+  const formatContentToList = (content: string) => {
+    // Split content by headers and create list items
+    const sections = content.split(/<h3>(.*?)<\/h3>/);
+    const listItems = [];
+    
+    for (let i = 1; i < sections.length; i += 2) {
+      const title = sections[i];
+      const content = sections[i + 1] || '';
+      
+      if (title && content.trim()) {
+        listItems.push({
+          title: title.trim(),
+          content: content.trim()
+        });
+      }
+    }
+    
+    return listItems;
+  };
+
+  if (loading) {
   return (
     <div className="privacy-page">
-      <h1 className="privacy-title">Privacy Policy</h1>
-      <div className="privacy-sections">
-        {sections.map(section => {
-          const isOpen = open === section.id;
-          return (
-            <div className={`privacy-section${isOpen ? " open" : ""}`} key={section.id}>
-              <button className="privacy-section-title" onClick={() => setOpen(isOpen ? null : section.id)}>
-                <b>{section.title}</b>
-                <span className="privacy-arrow">{isOpen ? "▲" : "▼"}</span>
-              </button>
-              <div className="privacy-section-content" style={{ maxHeight: isOpen ? 400 : 0 }}>
-                {section.content}
+        <div className="privacy-container">
+          <div className="loading-spinner">
+            <div className="spinner"></div>
+            <p>Loading Privacy Policy...</p>
+          </div>
               </div>
             </div>
           );
-        })}
+  }
+
+  if (error) {
+    return (
+      <div className="privacy-page">
+        <div className="privacy-container">
+          <div className="error-message">
+            <h2>Error</h2>
+            <p>{error}</p>
+            <button onClick={() => window.location.reload()} className="retry-button">
+              Try Again
+            </button>
+          </div>
       </div>
     </div>
   );
 } 
+
+  return (
+    <div className="privacy-page">
+      <div className="privacy-container">
+        <div className="privacy-header">
+          <h1>Privacy Policy</h1>
+          <p>Last updated: {new Date().toLocaleDateString()}</p>
+        </div>
+
+        <div className="privacy-content">
+          {privacyData.length > 0 ? (
+            privacyData.map((policy, index) => {
+              const listItems = formatContentToList(policy.content || policy.description || '');
+              
+              return (
+                <div key={index} className="policy-section">
+                  <h2>{policy.title || 'Privacy Policy'}</h2>
+                  
+                  {listItems.length > 0 ? (
+                    <ul className="policy-list">
+                      {listItems.map((item, itemIndex) => (
+                        <li key={itemIndex} className="policy-list-item">
+                          <h3>{item.title}</h3>
+                          <div 
+                            className="policy-text"
+                            dangerouslySetInnerHTML={{ __html: item.content }}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div 
+                      className="policy-text"
+                      dangerouslySetInnerHTML={{ __html: policy.content || policy.description || 'Privacy policy content will be displayed here.' }}
+                    />
+                  )}
+                </div>
+              );
+            })
+          ) : (
+            <div className="no-content">
+              <p>No privacy policy content available.</p>
+            </div>
+          )}
+        </div>
+
+        <div className="privacy-footer">
+          <button 
+            onClick={() => window.history.back()} 
+            className="back-button"
+          >
+            ← Back
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default PrivacyPolicyPage; 

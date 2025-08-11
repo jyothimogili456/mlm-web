@@ -30,7 +30,7 @@ import BranchesPage from "./pages/BranchesPage";
 import CancellationPolicyPage from "./pages/CancellationPolicyPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import ShippingPolicyPage from "./pages/ShippingPolicyPage";
-import TermsPage from "./pages/TermsPage";
+import TermsConditionsPage from "./pages/TermsConditionsPage";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -125,7 +125,7 @@ function App() {
             <Route path="/cancellation-policy" element={<MainLayout><CancellationPolicyPage /></MainLayout>} />
             <Route path="/privacy" element={<MainLayout><PrivacyPolicyPage /></MainLayout>} />
             <Route path="/shipping" element={<MainLayout><ShippingPolicyPage /></MainLayout>} />
-            <Route path="/terms" element={<MainLayout><TermsPage /></MainLayout>} />
+            <Route path="/terms" element={<MainLayout><TermsConditionsPage /></MainLayout>} />
             {/* Auth pages use AuthLayout */}
             <Route path="/register" element={<AuthLayout><Register /></AuthLayout>} />
             <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />

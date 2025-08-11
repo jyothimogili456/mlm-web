@@ -364,4 +364,25 @@
   .footer-social-row {
     gap: 0.6rem;
   }
-} 
+}
+
+/* Footer Link Button Styles */
+.footer-link-button {
+  background: none;
+  border: none;
+  color: #222;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.05rem;
+  transition: color 0.2s;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.footer-link-button:hover, .footer-link-button:focus {
+  color: #1660b1;
+  text-decoration: underline;
+}
+
+ 
