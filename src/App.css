@@ -31,6 +31,32 @@
   color: #61dafb;
 }
 
+/* Responsive layout for App container */
+@media (max-width: 1024px) {
+  .App {
+    padding: 0;
+    max-width: 100vw;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+}
+@media (max-width: 768px) {
+  .App {
+    padding: 0;
+    max-width: 100vw;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+}
+@media (max-width: 480px) {
+  .App {
+    padding: 0;
+    max-width: 100vw;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
