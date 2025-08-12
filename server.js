@@ -78,6 +78,21 @@ app.use('/uploads', express.static('uploads'));
 // Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({
+    statusCode: 200,
+    message: "Server is running",
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      products: '/product/all',
+      cart: '/cart/{userId}',
+      wishlist: '/wishlist/{userId}',
+      docs: '/api-docs'
+    }
+  });
+});
+
 // Sample products data
 let products = [
   {

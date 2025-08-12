@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useWishlist } from "../context/WishlistContext";
 import { useCart } from "../context/CartContext";
 import { apiUtils } from "../api";
@@ -52,6 +52,14 @@ const Wishlist: React.FC = () => {
     clear: false,
     moveToCart: false
   });
+
+  // Load wishlist when component mounts
+  useEffect(() => {
+    if (apiUtils.isLoggedIn() && !wishlistState.loading) {
+      console.log('Wishlist component mounted, loading wishlist');
+      loadWishlist();
+    }
+  }, []); // Remove loadWishlist dependency to prevent infinite re-renders
 
   const handleRemove = async (wishlistId: number, productName: string) => {
     setDeleteModal({
@@ -115,6 +123,10 @@ const Wishlist: React.FC = () => {
   };
 
   const handleRefresh = () => {
+    console.log('Refresh button clicked, current wishlist state:', wishlistState);
+    console.log('User data:', apiUtils.getUserData());
+    console.log('Token exists:', !!apiUtils.getToken());
+    console.log('Is logged in:', apiUtils.isLoggedIn());
     loadWishlist();
   };
 
