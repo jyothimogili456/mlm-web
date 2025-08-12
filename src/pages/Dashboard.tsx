@@ -22,6 +22,7 @@ function DashboardHome() {
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [walletLoading, setWalletLoading] = useState(true);
   const [walletError, setWalletError] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string>("");
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [ordersError, setOrdersError] = useState<string | null>(null);
@@ -53,6 +54,9 @@ function DashboardHome() {
         
         if (result.data && result.data.currentWalletBalance !== undefined) {
           setWalletBalance(result.data.currentWalletBalance);
+          if (result.data.userName) {
+            setUserName(result.data.userName);
+          }
         } else {
           setWalletError('Failed to load wallet balance');
         }
@@ -194,7 +198,7 @@ function DashboardHome() {
   return (
     <div className="gh-dashboard-home">
       <div className="gh-dashboard-welcome">
-        Welcome back, <b>User</b>! 
+        Welcome back, <b>{userName || "User"}</b>!
       </div>
       <div className="gh-dashboard-summary-grid">
         {/* <div className="gh-summary-card gh-animate">
@@ -292,10 +296,10 @@ function DashboardHome() {
               <div className="gh-referral-label">Direct Referrals</div>
             </div>
           </div>
-          <div className="gh-referral-link-row">
+          {/* <div className="gh-referral-link-row">
             <input className="gh-referral-link" value={referralLink} readOnly />
             <button className="gh-copy-btn" onClick={handleCopy}>{copied ? "Copied!" : "Copy"}</button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
