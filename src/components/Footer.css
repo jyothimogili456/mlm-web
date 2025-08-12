@@ -181,7 +181,9 @@
   text-decoration: underline;
 }
 .footer-address {
-  font-size: 1.01rem;
+  /* font-size: 1.01rem; */
+   font-weight: 500;
+  font-size: 1.05rem;
   color: #444;
   margin-bottom: 0.7rem;
   font-style: normal;
@@ -437,4 +439,21 @@
   text-decoration: underline;
 }
 
- 
+ .footer-address1 {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* space between icon and number */
+}
+
+.footer-social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.phone-number {
+  font-size: 14px;
+  color: #0c0505; /* change to match footer text color */
+   font-weight: 500;
+  font-size: 1.05rem;
+}
