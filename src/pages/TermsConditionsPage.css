@@ -1,6 +1,6 @@
 .terms-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #fcfafc 0%, #f9f8f8 100%);
   padding: 2rem 1rem;
 }
 
@@ -14,7 +14,7 @@
 }
 
 .terms-header {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #5966d9 0%, #667eea 100%);
   color: white;
   padding: 3rem 2rem;
   text-align: center;
