@@ -18,10 +18,13 @@ export default function AboutPage() {
         </div>
         <div className="about-content about-content-right">
           <div className="about-section-heading">
-            <h2>Our Mission: Helping Millions of Organizations<br />Grow Better</h2>
+            <h2>Our Mission</h2>
           </div>
           <p>
-            We believe not just in growing bigger, but in growing better. Growing better means aligning the success of your own business with the success of your customers. Win-win!
+            {/* Helping Millions of Organizations<br />Grow Better<br /><br /> */}
+            {/* At CamelQ, our mission goes beyond simply expanding our reach—we are dedicated to fostering meaningful growth for every organization we serve. We believe that true progress is not just about getting bigger, but about getting better in every way. This means building strong, lasting relationships, empowering our partners and customers, and creating value that benefits everyone involved.<br /><br /> */}
+            Growing better is about aligning your business success with the success of your customers. When our customers thrive, we thrive. We focus on innovative solutions, ethical practices, and a collaborative spirit that ensures every win is a win-win. By putting people first and prioritizing long-term impact, we help organizations unlock their full potential and make a positive difference in their communities.<br /><br />
+            Join us on this journey to grow better—together.
           </p>
         </div>
       </section>
