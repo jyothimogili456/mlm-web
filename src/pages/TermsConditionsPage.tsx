@@ -109,10 +109,10 @@ const TermsConditionsPage = () => {
   return (
     <div className="terms-page">
       <div className="terms-container">
-        <div className="terms-header">
+        {/* <div className="terms-header">
           <h1>Terms & Conditions</h1>
           <p>Last updated: {new Date().toLocaleDateString()}</p>
-        </div>
+        </div> */}
 
         <div className="terms-content">
           {termsData.length > 0 ? (
