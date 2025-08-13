@@ -17,7 +17,7 @@ const Cart: React.FC = () => {
       hasLoaded.current = true;
       loadCart();
     }
-  }, []);
+  }, [loadCart]);
   
   // Modal states
   const [deleteModal, setDeleteModal] = useState<{

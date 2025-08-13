@@ -18,7 +18,6 @@ import { apiUtils, userApi, productApi, bankDetailsApi } from "../api";
 import "./Dashboard.css";
 
 function DashboardHome() {
-  const [copied, setCopied] = useState(false);
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [walletLoading, setWalletLoading] = useState(true);
   const [walletError, setWalletError] = useState<string | null>(null);
@@ -29,27 +28,25 @@ function DashboardHome() {
   const [referralCount, setReferralCount] = useState<number>(0);
   const [referralCountLoading, setReferralCountLoading] = useState(true);
   const [referralCountError, setReferralCountError] = useState<string | null>(null);
-  const [userData, setUserData] = useState<any>(null);
+  // userData state removed as it was unused
   const [totalRedeemedAmount, setTotalRedeemedAmount] = useState<number>(0);
   const [redeemHistoryLoading, setRedeemHistoryLoading] = useState(true);
-  const referralLink = userData?.referral_code 
-    ? `https://giftshero.com/ref/${userData.referral_code}`
-    : "https://giftshero.com/ref/GH1234";
+  // referralLink removed as it was unused (commented out in UI)
 
   // Fetch wallet balance
   useEffect(() => {
     const fetchWalletBalance = async () => {
       try {
         setWalletLoading(true);
-        const userData = apiUtils.getUserData();
+        const currentUserData = apiUtils.getUserData();
         const token = apiUtils.getToken();
         
-        if (!userData || !token) {
+        if (!currentUserData || !token) {
           setWalletError('Please login to view wallet balance');
           return;
         }
 
-        const result = await userApi.getWalletBalance(userData.id, token);
+        const result = await userApi.getWalletBalance(currentUserData.id, token);
         console.log('Wallet Balance API Response:', result);
         
         if (result.data && result.data.currentWalletBalance !== undefined) {
@@ -76,14 +73,14 @@ function DashboardHome() {
     const fetchRedeemHistory = async () => {
       try {
         setRedeemHistoryLoading(true);
-        const userData = apiUtils.getUserData();
+        const currentUserData = apiUtils.getUserData();
         const token = apiUtils.getToken();
         
-        if (!userData || !token) {
+        if (!currentUserData || !token) {
           return;
         }
 
-        const historyResponse = await bankDetailsApi.getRedeemHistory(userData.id, token);
+        const historyResponse = await bankDetailsApi.getRedeemHistory(currentUserData.id, token);
         if (historyResponse.data) {
           const totalRedeemed = historyResponse.data
             .filter((item: any) => item.status === 'deposited')
@@ -117,7 +114,7 @@ function DashboardHome() {
           return;
         }
 
-        setUserData(user);
+        // setUserData call removed as state was unused
         
         if (user.referral_code) {
           const result = await userApi.getUsersReferredBy(user.referral_code, token);
@@ -150,16 +147,16 @@ function DashboardHome() {
         setOrdersLoading(true);
         setOrdersError(null);
         
-        const userData = apiUtils.getUserData();
+        const currentUserData = apiUtils.getUserData();
         const token = apiUtils.getToken();
         
-        if (!userData || !token) {
+        if (!currentUserData || !token) {
           setOrdersError('Please login to view recent orders');
           setOrdersLoading(false);
           return;
         }
 
-        const result = await productApi.getOrderHistory(userData.id, token);
+        const result = await productApi.getOrderHistory(currentUserData.id, token);
         console.log('Recent Orders API Response:', result);
         
         if (result.data) {
@@ -189,11 +186,7 @@ function DashboardHome() {
     fetchRecentOrders();
   }, []);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(referralLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1200);
-  };
+
 
   return (
     <div className="gh-dashboard-home">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Home, User, Box, Share2, Gift, Heart, MessageCircle, Settings, Menu, X, CreditCard, DollarSign } from "react-feather";
+import { Home, User, Box, Share2, Gift, Heart, MessageCircle, Menu, X, CreditCard, DollarSign } from "react-feather";
 import { useUser } from "../../context/UserContext";
 import { userApi } from "../../api";
 import "./DashboardSidebar.css";

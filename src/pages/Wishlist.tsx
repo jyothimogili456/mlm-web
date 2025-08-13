@@ -8,25 +8,8 @@ import ConfirmationModal from "../components/ConfirmationModal";
 import "./Wishlist.css";
 import nowishlistImg from '../assets/wishlist.png';
 
-interface Product {
-  id: number;
-  name: string;
-  image: string;
-  category: string;
-  itemCode: string;
-  mrp: number;
-  price: number;
-  rating: number;
-  description: string;
-  productName: string;
-  productPrice: number;
-  productCount: number;
-  productStatus: string;
-  productCode: number;
-}
-
 const Wishlist: React.FC = () => {
-  const { state: wishlistState, removeFromWishlist, clearWishlist, loadWishlist } = useWishlist();
+  const { state: wishlistState, removeFromWishlist, loadWishlist } = useWishlist();
   const { addToCart } = useCart();
   const navigate = useNavigate();
   
@@ -59,7 +42,7 @@ const Wishlist: React.FC = () => {
       console.log('Wishlist component mounted, loading wishlist');
       loadWishlist();
     }
-  }, []); // Remove loadWishlist dependency to prevent infinite re-renders
+  }, [loadWishlist, wishlistState.loading]); // Include dependencies
 
   const handleRemove = async (wishlistId: number, productName: string) => {
     setDeleteModal({
@@ -100,27 +83,7 @@ const Wishlist: React.FC = () => {
     }
   };
 
-  const handleClearWishlist = () => {
-    setDeleteModal({
-      isOpen: true,
-      itemId: null,
-      itemName: 'all items',
-      type: 'clear'
-    });
-  };
 
-  const confirmClearWishlist = async () => {
-    setLoadingStates(prev => ({ ...prev, clear: true }));
-    
-    try {
-      await clearWishlist();
-      setDeleteModal({ isOpen: false, itemId: null, itemName: '', type: 'item' });
-    } catch (error) {
-      console.error('Failed to clear wishlist:', error);
-    } finally {
-      setLoadingStates(prev => ({ ...prev, clear: false }));
-    }
-  };
 
   const handleRefresh = () => {
     console.log('Refresh button clicked, current wishlist state:', wishlistState);
@@ -272,17 +235,13 @@ const Wishlist: React.FC = () => {
       <ConfirmationModal
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, itemId: null, itemName: '', type: 'item' })}
-        onConfirm={deleteModal.type === 'clear' ? confirmClearWishlist : confirmDelete}
-        title={deleteModal.type === 'clear' ? 'Clear Wishlist' : 'Remove Item'}
-        message={
-          deleteModal.type === 'clear' 
-            ? 'Are you sure you want to remove all items from your wishlist? This action cannot be undone.'
-            : `Are you sure you want to remove "${deleteModal.itemName}" from your wishlist?`
-        }
-        confirmText={deleteModal.type === 'clear' ? 'Clear All' : 'Remove'}
+        onConfirm={confirmDelete}
+        title="Remove Item"
+        message={`Are you sure you want to remove "${deleteModal.itemName}" from your wishlist?`}
+        confirmText="Remove"
         cancelText="Cancel"
         type="danger"
-        loading={loadingStates.delete || loadingStates.clear}
+        loading={loadingStates.delete}
       />
     </div>
   );

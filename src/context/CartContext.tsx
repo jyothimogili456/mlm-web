@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, ReactNode, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useReducer, ReactNode, useCallback } from "react";
 import { apiUtils } from "../api";
 
 type CartItem = {

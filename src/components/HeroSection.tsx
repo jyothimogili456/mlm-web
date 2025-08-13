@@ -1,16 +1,8 @@
 import React from 'react';
 import './HeroSection.css';
-import giftsHeroImg from '../assets/giftshero.png';
 import personImg from '../assets/shopping-removebg-preview.png';
-import { motion } from 'framer-motion';
-import headSetImg from '../assets/head-set.png';
 
 const HeroSection = () => {
-  const smallCircleImages = [
-    giftsHeroImg, // placeholder for gift
-    headSetImg,   // placeholder for bike
-    personImg,    // placeholder for car
-  ];
 
   return (
     <section className="hero-section">

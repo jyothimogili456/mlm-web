@@ -34,7 +34,6 @@ export default function Checkout() {
     state: "",
     zip: "",
   });
-  const [confirmed, setConfirmed] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const total = mockOrder.reduce((sum, item) => sum + item.price * item.qty, 0);
   const [selected, setSelected] = useState("payOnline");
@@ -96,7 +95,7 @@ export default function Checkout() {
                 <input type="radio" checked={selected === "payOnline"} readOnly />
               </div>
               <div style={{ marginTop: 8, fontWeight: 700 }}>Pay Online</div>
-              <div style={{ color: "#059669", fontSize: "0.95rem" }}>Extra discount with bank offers <a href="#" style={{ color: "#059669", textDecoration: "underline" }}>View Offers</a></div>
+              <div style={{ color: "#059669", fontSize: "0.95rem" }}>Extra discount with bank offers <button type="button" style={{ color: "#059669", textDecoration: "underline", background: "none", border: "none", cursor: "pointer", padding: 0, font: "inherit" }}>View Offers</button></div>
             </div>
 
             {/* Last Used */}

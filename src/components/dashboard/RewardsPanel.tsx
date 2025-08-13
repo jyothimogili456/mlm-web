@@ -1,15 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { Gift, Award, Target, TrendingUp, X, AlertCircle, CheckCircle } from "react-feather";
+import React, { useState, useEffect, useCallback } from "react";
+import { Gift, Target, TrendingUp, X, AlertCircle, CheckCircle } from "react-feather";
 import { apiUtils, userApi, bankDetailsApi } from "../../api";
 import "./RewardsPanel.css";
 
-interface ReferralStats {
-  todayReferrals: number;
-  monthReferrals: number;
-  reward?: string;
-  todayNextGoal?: string;
-  monthNextGoal?: string;
-}
+// ReferralStats interface removed as it was unused
 
 interface UserData {
   id: number;
@@ -42,28 +36,12 @@ interface ReferralPackage {
   nextGoal?: string;
 }
 
-const rewardHistory = [
-  { 
-    id: 1,
-    date: "2024-05-01", 
-    source: "Referral Bonus", 
-    amount: 50, 
-    referralsCount: 20,
-    status: "Available",
-    bankDetails: {
-      bankName: "HDFC Bank",
-      accountNumber: "1234567890",
-      ifscCode: "HDFC0001234",
-      accountHolder: "John Doe"
-    }
-  },
-];
+
 
 export default function RewardsPanel() {
 
   const [showBankModal, setShowBankModal] = useState<number | string | null>(null);
   const [showThankYouModal, setShowThankYouModal] = useState(false);
-  const [pendingRewards, setPendingRewards] = useState<(number | string)[]>([]);
   const [bankFormData, setBankFormData] = useState({
     bankName: "",
     accountNumber: "",
@@ -80,12 +58,11 @@ export default function RewardsPanel() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userRedeemStatus, setUserRedeemStatus] = useState<string | null>(null);
   const [redeemHistory, setRedeemHistory] = useState<any[]>([]);
   const [showWalletZeroNotification, setShowWalletZeroNotification] = useState(false);
 
   // Function to refresh user data and redeem history
-  const refreshUserData = async () => {
+  const refreshUserData = useCallback(async () => {
     try {
       const currentUserData = apiUtils.getUserData();
       const token = apiUtils.getToken();
@@ -94,16 +71,17 @@ export default function RewardsPanel() {
         return;
       }
 
-      // Store previous wallet balance for comparison
-      const previousWalletBalance = userData?.wallet_balance || 0;
+      // Store current wallet balance before fetching new data
+      const currentWalletBalance = userData?.wallet_balance || 0;
 
       // Fetch updated user data to get current wallet balance
       const userResult = await userApi.getUserById(currentUserData.id, token);
       console.log('Updated User Data API Response:', userResult);
+      
       setUserData(userResult.data);
 
       // Check if wallet balance became zero and show notification
-      if (previousWalletBalance > 0 && userResult.data.wallet_balance === 0) {
+      if (currentWalletBalance > 0 && userResult.data.wallet_balance === 0) {
         setShowWalletZeroNotification(true);
         // Auto-hide notification after 5 seconds
         setTimeout(() => setShowWalletZeroNotification(false), 5000);
@@ -121,7 +99,7 @@ export default function RewardsPanel() {
     } catch (error) {
       console.error('Error refreshing user data:', error);
     }
-  };
+  }, [userData?.wallet_balance]); // Include wallet_balance dependency
 
   // Fetch referral stats and user data from API
   useEffect(() => {
@@ -145,7 +123,7 @@ export default function RewardsPanel() {
         try {
           const bankResponse = await bankDetailsApi.getBankDetails(currentUserData.id, token);
           if (bankResponse.data && bankResponse.data.redeemAmount > 0) {
-            setUserRedeemStatus(bankResponse.data.redeemStatus);
+            // Redeem status handling removed as userRedeemStatus state was unused
           }
 
           // Fetch redeem history
@@ -212,7 +190,7 @@ export default function RewardsPanel() {
 
     // Cleanup interval on unmount
     return () => clearInterval(interval);
-  }, []);
+  }, [refreshUserData]); // Include refreshUserData dependency
 
   // Prevent body scrolling when modal is open
   useEffect(() => {
@@ -455,13 +433,12 @@ export default function RewardsPanel() {
       closeModal();
       setShowThankYouModal(true);
       
-      // Add the current reward to pending list
+      // Add the current reward to pending list (removed as pendingRewards state was unused)
       if (showBankModal) {
-        setPendingRewards(prev => [...prev, showBankModal]);
+        // Pending rewards tracking removed as state was unused
       }
       
-      // Update user redeem status
-      setUserRedeemStatus('processing');
+      // Update user redeem status (removed as userRedeemStatus state was unused)
       
       // Refresh redeem history
       try {
@@ -506,8 +483,7 @@ export default function RewardsPanel() {
       closeModal();
       setShowThankYouModal(true);
       
-      // Update user redeem status
-      setUserRedeemStatus('processing');
+      // Update user redeem status (removed as userRedeemStatus state was unused)
       
       // Refresh redeem history
       try {

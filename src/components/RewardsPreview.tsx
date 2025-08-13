@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { Watch, Smartphone, Bike, Car, IndianRupee } from "lucide-react";
 import "./RewardsPreview.css";
@@ -62,32 +62,9 @@ const cardVariants = {
 };
 
 export const RewardsPreview: React.FC = () => {
-  const carouselRef = useRef<HTMLDivElement>(null);
+  // carouselRef removed as it was unused
 
-  const scrollLeft = () => {
-    if (carouselRef.current) {
-      const card = carouselRef.current.querySelector('.reward-card');
-      if (card) {
-        const cardEl = card as HTMLElement;
-        const cardStyle = window.getComputedStyle(cardEl);
-        const cardWidth = cardEl.offsetWidth;
-        const gap = parseInt(cardStyle.marginRight || '0') || 16;
-        carouselRef.current.scrollBy({ left: -(cardWidth + gap), behavior: 'smooth' });
-      }
-    }
-  };
-  const scrollRight = () => {
-    if (carouselRef.current) {
-      const card = carouselRef.current.querySelector('.reward-card');
-      if (card) {
-        const cardEl = card as HTMLElement;
-        const cardStyle = window.getComputedStyle(cardEl);
-        const cardWidth = cardEl.offsetWidth;
-        const gap = parseInt(cardStyle.marginRight || '0') || 16;
-        carouselRef.current.scrollBy({ left: cardWidth + gap, behavior: 'smooth' });
-      }
-    }
-  };
+
 
   return (
     <section className="section section--alt rewards-preview-section">

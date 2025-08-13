@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { userApi } from "../../api";
 import { useUser } from "../../context/UserContext";
 import "./UserProfilePanel.css";
@@ -53,7 +53,7 @@ export default function UserProfilePanel() {
   };
 
   // Load user profile data
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     console.log("loadProfile called", { user, userLoading });
     
     // If user context is still loading, wait
@@ -115,7 +115,7 @@ export default function UserProfilePanel() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, userLoading, refreshUser]);
 
   // Load profile when user context is ready
   useEffect(() => {
@@ -123,7 +123,7 @@ export default function UserProfilePanel() {
     if (!userLoading) {
       loadProfile();
     }
-  }, [user?.id, userLoading]);
+  }, [user?.id, userLoading, loadProfile, loading, user]);
 
   // Debug form data
   useEffect(() => {

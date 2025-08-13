@@ -13,18 +13,15 @@ import "./Header.css";
 export const Header: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
   const { state: cartState } = useCart();
   const { state: wishlistState } = useWishlist();
-  const { user, logout: userLogout } = useUser();
+  const { logout: userLogout } = useUser();
 
   useEffect(() => {
     // Check if user is logged in on component mount
     const checkAuthStatus = () => {
       const loggedIn = apiUtils.isLoggedIn();
-      const user = apiUtils.getUserData();
       setIsLoggedIn(loggedIn);
-      setUserData(user);
     };
 
     checkAuthStatus();

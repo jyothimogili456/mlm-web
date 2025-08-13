@@ -11,7 +11,7 @@ const transactions = [
 ];
 
 export default function WalletPanel() {
-  const [balance, setBalance] = useState(1250);
+  const [balance] = useState(1250);
   const cashback = transactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0);
   const spending = transactions.filter(t => t.amount < 0).reduce((sum, t) => sum + Math.abs(t.amount), 0);
 

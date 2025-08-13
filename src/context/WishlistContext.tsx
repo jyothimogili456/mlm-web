@@ -234,7 +234,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
         }
         dispatch({ type: "SET_LOADING", loading: false });
       }
-    }, []); // 100ms delay
+    }, [state.loading, state.items.length]); // Include dependencies
 
   const addToWishlist = async (product: any) => {
     const userData = apiUtils.getUserData();
@@ -322,7 +322,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
       }
       // Clear any pending timeout
     };
-  }, []); // Empty dependency array - only run once on mount
+  }, [loadWishlist, state.loading]); // Include loadWishlist and state.loading
 
   return (
     <WishlistContext.Provider value={{ 
