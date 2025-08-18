@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { apiUtils } from '../api';
+import { apiUtils, userApi } from '../api';
 import { LogOut, User, Mail, Phone, MapPin } from 'lucide-react';
 
 const Profile: React.FC = () => {
   const [userData, setUserData] = useState<any>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordMsg, setPasswordMsg] = useState<string | null>(null);
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   useEffect(() => {
     const checkAuthStatus = () => {
@@ -30,6 +34,41 @@ const Profile: React.FC = () => {
 
   const handleLogout = () => {
     apiUtils.logoutAndRedirect('/');
+  };
+
+  const handleUpdatePassword = async () => {
+    try {
+      setPasswordMsg(null);
+      if (!userData?.id) {
+        setPasswordMsg('Missing user information. Please re-login.');
+        return;
+      }
+      if (!newPassword || newPassword.length < 6) {
+        setPasswordMsg('Password must be at least 6 characters.');
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        setPasswordMsg('Passwords do not match.');
+        return;
+      }
+
+      const token = localStorage.getItem('userToken') || localStorage.getItem('adminToken');
+      if (!token) {
+        setPasswordMsg('Not authenticated. Please login again.');
+        return;
+      }
+
+      setIsUpdatingPassword(true);
+      await userApi.updatePassword(Number(userData.id), newPassword, token);
+      setPasswordMsg('Password updated successfully.');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (e: any) {
+      const msg = e?.message || 'Failed to update password';
+      setPasswordMsg(msg);
+    } finally {
+      setIsUpdatingPassword(false);
+    }
   };
 
   if (!isLoggedIn) {
@@ -249,6 +288,78 @@ const Profile: React.FC = () => {
                 }}>
                   {userData.status || 'Active'}
                 </div>
+              </div>
+            </div>
+
+            {/* Update Password Section */}
+            <div style={{
+              marginTop: '0.5rem',
+              padding: '1.25rem',
+              background: '#ffffff',
+              border: '1px solid #e5e7eb',
+              borderRadius: '0.75rem'
+            }}>
+              <h2 style={{
+                margin: 0,
+                marginBottom: '1rem',
+                color: '#1f2937',
+                fontSize: '1.25rem',
+                fontWeight: 700
+              }}>Update Password</h2>
+
+              {passwordMsg && (
+                <div style={{
+                  marginBottom: '0.75rem',
+                  color: passwordMsg.toLowerCase().includes('success') ? '#059669' : '#dc2626',
+                  fontSize: '0.95rem'
+                }}>
+                  {passwordMsg}
+                </div>
+              )}
+
+              <div style={{ display: 'grid', gap: '0.75rem' }}>
+                <input
+                  type="password"
+                  placeholder="New Password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  style={{
+                    padding: '0.65rem 0.8rem',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '0.5rem',
+                    outline: 'none'
+                  }}
+                />
+                <input
+                  type="password"
+                  placeholder="Confirm New Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  style={{
+                    padding: '0.65rem 0.8rem',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '0.5rem',
+                    outline: 'none'
+                  }}
+                />
+
+                <button
+                  onClick={handleUpdatePassword}
+                  disabled={isUpdatingPassword}
+                  style={{
+                    background: '#7c3aed',
+                    color: 'white',
+                    padding: '0.6rem 1rem',
+                    border: 'none',
+                    borderRadius: '0.5rem',
+                    cursor: 'pointer',
+                    fontSize: '0.95rem',
+                    fontWeight: 600,
+                    opacity: isUpdatingPassword ? 0.7 : 1
+                  }}
+                >
+                  {isUpdatingPassword ? 'Updating...' : 'Update Password'}
+                </button>
               </div>
             </div>
           </div>
