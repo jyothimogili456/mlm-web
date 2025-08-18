@@ -7,7 +7,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
 const app = express();
-const PORT = 3000;
+const PORT = 3001; // Pin mlm-web to port 3001
 
 // Create uploads directory
 if (!fs.existsSync('uploads')) {
@@ -29,7 +29,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
+        url: 'http://localhost:3001',
         description: 'Development server'
       }
     ],
